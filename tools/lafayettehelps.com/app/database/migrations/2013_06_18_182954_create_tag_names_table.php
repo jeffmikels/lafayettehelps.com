@@ -1,4 +1,7 @@
 <?php
+// contains the tag terms
+// the table linking tags to objects is
+// called simply `tags`
 
 use Illuminate\Database\Migrations\Migration;
 
