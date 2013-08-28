@@ -12,7 +12,7 @@
 		</style>
 	</head>
 	<body>
-		<h1><a href='/'>lafayettehelps.com</a></h1>
+		<h1><a href='//test.lafayettehelps.com'>test.lafayettehelps.com</a></h1>
 
 		@yield('content')
 
