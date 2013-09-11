@@ -26,7 +26,7 @@ class CreateUsersTable extends Migration {
 			$table->string('city');
 			$table->string('state');
 			$table->string('zip');
-			$table->integer('reputation')->default(0);
+			$table->integer('reputation')->default(50);
 			$table->string('status')->default('unverified');
 			$table->string('role')->default('user'); // administrator, editor, user
 			$table->timestamps();

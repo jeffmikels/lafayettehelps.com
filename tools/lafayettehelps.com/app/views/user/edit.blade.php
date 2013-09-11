@@ -15,7 +15,7 @@
 
 		{{-- debug($user) --}}
 		{{-- debug($_POST) --}}
-		
+
 		Logged in as: {{ Auth::user()->username }}
 
 
@@ -55,7 +55,7 @@
 		<?php $show_fields = Array('first_name','phone'); ?>
 		<?php if (Auth::user()->role == 'administrator' || Auth::user() == $user)
 			$show_fields = Array('first_name','last_name','phone','address','city','state','zip'); ?>
-		
+
 		@foreach ($show_fields as $key)
 
 		<div class="{{ $key }}">
@@ -71,27 +71,19 @@
 		<div class="admin_details">
 			<div class="status">
 			{{ Form::label('status') }}
-			{{ Form::text('status') }}
+			{{ Form::select('status', $user->getStatusOptions()) }}
 			</div>
 			<div class="role">
 				{{Form::label('role')}}
-				{{Form::text('role')}}
+				{{Form::select('role', $user->getRoleOptions())}}
 			</div>
 		</div>
 		@endif
-		
-		<?php $reputation_class="green"; ?>
-		<?php if ($user->reputation < 75) $reputation_class='yellow'; ?>
-		<?php if ($user->reputation < 50 ) $reputation_class='orange'; ?>
-		<?php if ($user->reputation < 25) $reputation_class='red'; ?>
 
-		<h2>Reputation</h2>
-		<div class="reputaton_bar" style="width:100%;box-sizing:border-box;border:1px solid #777;border-radius:3px;overflow:hidden;">
-			<div class="reputation_color {{$reputation_class}}" style="width:{{ ($user->reputation) }}%;background-color:{{$reputation_class}};">&nbsp;</div>
-		</div>
-
+		<div class="form_buttons">
 		{{ Form::submit() }}
 		{{ Form::close() }}
+		</div>
 
 
 @stop

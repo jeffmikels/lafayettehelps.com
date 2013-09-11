@@ -8,8 +8,29 @@ function debug($s)
 	print "\n</pre>\n";
 }
 
+function isAdmin($user = False)
+{
+	if ($user) return ($user->role=='administrator');
+	if (! Auth::check() ) return False;
+	return (Auth::user()->role == 'administrator');
+}
 
-Auth::loginUsingId(1); 
+function isOrgAdmin($user = False)
+{
+	if ($user) return ($user->isOrgAdmin());
+	if (! Auth::check() ) return False;
+	return (Auth::user()->isOrgAdmin());
+}
+
+function hasPermissionTo($action, $object, $user = False)
+{
+	global $permissions;
+	if ($user) return $user->hasPermissionTo($action, $object);
+	if (Auth::check()) return Auth::user()->hasPermissionTo($action, $object);
+	if (isset($permissions[get_class($object)][$action]['anonymous'])) return $permissions[get_class($object)][$action]['anonymous'];
+	return False;
+
+}
 
 /* TODO NOTES
 
@@ -38,5 +59,26 @@ PERMISSIONS
 	passwords are hashed and can't be seen or decrypted by anyone
 
 */
+
+class myConfig
+{
+	// put configuration settings here
+
+	private static $settings = Array
+	(
+		'salt' => 'it is very important to use a salt when hashing your passwords',
+	);
+
+
+	private function __construct(){}
+
+	public static function get($prop, $default = '')
+	{
+		if ( isset (self::$settings[$prop]) ) return self::$settings[$prop];
+		else return $default;
+	}
+}
+
+
 
 // don't close out the php tag!

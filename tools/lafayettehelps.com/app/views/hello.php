@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Laravel PHP Framework</title>
+    <title>Lafayette Helps</title>
     <style>
         @import url(//fonts.googleapis.com/css?family=Lato:300,400,700);
 
@@ -49,7 +49,7 @@
         <h1>You have arrived.</h1>
         An initial view has been created at <a href="/users">/users</a>
 		<ul>
-			
+
 		<?php foreach (Array('users','requests') as $item) : ?>
 		<li><a href="/<?php print $item; ?>">/<?php print $item; ?></a></li>
 		<?php endforeach; ?>

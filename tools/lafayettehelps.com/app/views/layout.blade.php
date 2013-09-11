@@ -1,23 +1,48 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>lafayettehelps.com</title>
+
+		<link type="text/css" rel="stylesheet" href="/css/style.css" media="all" />
 		<style type="text/css">
-			@import url(//fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
-			body {font-family: Lato;}
-			label {font-weight:300;display:inline-block;width:200px;text-align:right;margin-right:10px;font-size:18pt;}
-			
-			input[type=text],
-			input[type=email],
-			input[type=password]
-			{width:300px; text-align:left; margin-left:20px;font-size:18pt;padding:10px;border-radius:6px;}
-			
-			pre.debug {font-size:8px;}
 		</style>
 	</head>
 	<body>
-		<h1><a href='//test.lafayettehelps.com'>test.lafayettehelps.com</a></h1>
+		<div id="container">
 
-		@yield('content')
+			<div id="header">
+				<h1><a href='//test.lafayettehelps.com'>test.lafayettehelps.com</a></h1>
+			</div>
 
+			<div id="menu">
+				<ul class="navbar">
+					<li><a href="/Requests">Requests</a>
+
+					@if (Auth::check())
+
+					@if (Auth::user()->role == 'administrator')
+					<li><a href="/users">Users</a>
+					<li><a href="/orgs">Orgs</a>
+					@endif
+
+					<li><a href="/user/{{ Auth::user()->id }}">My Account</a>
+					<li><a href="/user/logout">Logout</a>
+					@else
+					<li><a href="/user/add">Register</a>
+					<li><a href="/user/login">Login</a>
+					@endif
+
+				</ul>
+			</div>
+
+			<div id="content">
+			@yield('content')
+			</div>
+
+		<div>
 	</body>
 </html>
+<?php
+Session::forget('status');
+Session::forget('message');
+?>

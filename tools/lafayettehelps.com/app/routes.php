@@ -23,10 +23,13 @@ Route::get('/', 'HomeController@showWelcome');
 // USER VIEWS
 Route::get('users', 'UserController@getIndex');
 Route::get('user/add', 'UserController@addUser');
-Route::post('user/add', 'UserController@addUser');
+Route::post('user/add', array('before' => 'csrf', 'uses' => 'UserController@addUser'));
+Route::get('user/login', 'UserController@doLogin');
+Route::post('user/login', array('before' => 'csrf', 'uses' => 'UserController@doLogin'));
+Route::get('user/logout', 'UserController@doLogout');
 Route::get('user/{id}', 'UserController@showProfile');
 Route::get('user/{id}/edit', 'UserController@editUser');
-Route::post('user/{id}/edit', 'UserController@saveUser');
+Route::post('user/{id}/edit', array('before'=>'csrf', 'uses' => 'UserController@saveUser'));
 
 
 // CREATE FILTERS TO DETERMINE WHAT AUTHENTICATION IS NEEDED
