@@ -20,10 +20,14 @@ Route::get('/', function()
 
 Route::get('/', 'HomeController@showWelcome');
 
+// USER VIEWS
 Route::get('users', 'UserController@getIndex');
+Route::get('user/add', 'UserController@addUser');
+Route::post('user/add', 'UserController@addUser');
 Route::get('user/{id}', 'UserController@showProfile');
 Route::get('user/{id}/edit', 'UserController@editUser');
 Route::post('user/{id}/edit', 'UserController@saveUser');
+
 
 // CREATE FILTERS TO DETERMINE WHAT AUTHENTICATION IS NEEDED
 // FOR EXAMPLE, ANY ROUTE WITH /edit IN THE NAME REQUIRES AT LEAST

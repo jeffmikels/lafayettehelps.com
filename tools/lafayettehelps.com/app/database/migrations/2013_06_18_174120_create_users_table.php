@@ -1,4 +1,6 @@
 <?php
+// Users Table
+
 
 use Illuminate\Database\Migrations\Migration;
 

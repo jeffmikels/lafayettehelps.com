@@ -3,12 +3,13 @@
 /* convenience functions for laravel */
 function debug($s)
 {
-	print "\n<pre>\n";
+	print "\n<pre class=\"debug\">\n";
 	print_r($s);
 	print "\n</pre>\n";
 }
 
 
+Auth::loginUsingId(1); 
 
 /* TODO NOTES
 
