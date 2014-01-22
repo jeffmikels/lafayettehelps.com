@@ -1,4 +1,5 @@
 <?php
+// Relationships Table
 
 use Illuminate\Database\Migrations\Migration;
 
@@ -16,7 +17,7 @@ class CreateRelationshipsTable extends Migration {
 			$table->increments('id');
 			$table->string('user_id');
 			$table->string('organization_id');
-			$table->string('relationship_id');
+			$table->string('relationship_type');
 			$table->timestamps();
 		});
 	}

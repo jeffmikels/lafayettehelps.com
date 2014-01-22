@@ -16,7 +16,7 @@ class CreateRecommendationsTable extends Migration {
 			$table->increments('id');
 			$table->integer('contributed_by'); // user id
 			$table->integer('contributed_for'); // user id
-			$table->text('recommendation');
+			$table->text('body');
 			$table->timestamps();
 			$table->softDeletes();
 		});

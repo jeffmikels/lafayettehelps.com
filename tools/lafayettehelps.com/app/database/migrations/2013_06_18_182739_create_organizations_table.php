@@ -1,4 +1,5 @@
 <?php
+// Organizations Table
 
 use Illuminate\Database\Migrations\Migration;
 

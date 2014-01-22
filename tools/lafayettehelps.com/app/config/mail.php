@@ -28,7 +28,7 @@ return array(
 	|
 	*/
 
-	'host' => 'localhost',
+	'host' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -41,7 +41,8 @@ return array(
 	|
 	*/
 
-	'port' => 587,
+	//'port' => 587,
+	'port' => 25,
 
 	/*
 	|--------------------------------------------------------------------------
@@ -54,7 +55,8 @@ return array(
 	|
 	*/
 
-	'from' => array('address' => 'helper@lafayettehelps.com', 'name' => 'LafayetteHelps.com'),
+	//'from' => array('address' => 'helper@lafayettehelps.com', 'name' => 'LafayetteHelps.com'),
+	'from' => array('address' => 'jeffmikels@gmail.com', 'name' => 'Jeff Mikels (from Laravel)'),
 
 	/*
 	|--------------------------------------------------------------------------

@@ -14,8 +14,8 @@ class CreatePledgesTable extends Migration {
 		Schema::create('pledges', function($table)
 		{
 			$table->increments('id');
-			$table->integer('pledged_by'); // user id
-			$table->integer('pledged_for'); // request id
+			$table->integer('user_id'); // user id
+			$table->integer('request_id'); // request id
 			$table->float('dollars')->default(0);
 			$table->string('alternatives')->default('');
 			$table->string('status')->default('uncompleted'); // uncompleted, completed

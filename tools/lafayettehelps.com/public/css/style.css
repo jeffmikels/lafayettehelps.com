@@ -1,0 +1,118 @@
+@import url(//fonts.googleapis.com/css?family=Lato:300,400,700,900,300italic,400italic,700italic,900italic);
+
+body {
+		margin:0;
+		font-family:'Lato', sans-serif;
+		color: #999;
+		background: url(/images/wave.jpg);
+}
+
+/* page sections */
+#container
+{
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+#header
+{
+	text-align:right;
+	background: #eef;
+	padding: 40px;
+	margin:0;
+}
+
+#menu
+{
+	background: black;
+	padding: 0px;
+	margin:0 0 15px;
+}
+#menu .navbar {margin:0; padding:0;}
+#menu .navbar li {margin:0;}
+#menu .navbar li a {display:inline-block; padding:10px;}
+#menu .navbar li a:hover {text-decoration:none;color:black;background:#FF5949}
+
+.welcome {
+	 width: 400px;
+	 height: 400px;
+	 position: absolute;
+	 left: 50%;
+	 top: 40%;
+	 margin-left: -200px;
+	 margin-top: -200px;
+}
+
+.reputation_bar
+{
+	width:100%;
+	box-sizing:border-box;
+	border:1px solid #777;
+	border-radius:3px;
+	overflow:hidden;
+}
+.reputation_color{}
+.reputation_icon { display: inline-block; width:20px; border-radius:30px;}
+.yellow {background-color:yellow;}
+.orange {background-color:orange;}
+.red {background-color:red;}
+.green {background-color:green;}
+
+.comments .comment{margin:10px 10px 20px 10px;}
+
+
+
+/* links */
+a, a:visited {
+		color:#FF5949;
+		text-decoration:none;
+		display: inline-block;
+		padding:.3em;
+		border:1px solid transparent;
+		border-radius:3px;
+}
+
+a:hover {
+		text-decoration:none;
+		color:black;
+		border:1px solid #999;
+		background:#FF5949;
+}
+
+/* lists */
+#menu ul.navbar li {
+		display:inline;
+		margin:0 .3em;
+}
+
+/* tags */
+p {
+		margin:2em 0;
+		color:#555;
+}
+pre.debug {font-size:8px;}
+small {font-size: .6em;}
+
+table th,
+table td
+{text-align:left;padding:0 20px;border-bottom:1px solid #aaa;}
+
+
+
+/* forms */
+.form_buttons {text-align:center; margin:15px 0;}
+label {font-weight:300;display:inline-block;width:200px;text-align:right;margin-right:10px;font-size:18pt;vertical-align:top;}
+
+input[type=text],
+input[type=email],
+input[type=password],
+select,
+textarea
+{width:300px; text-align:left; margin-left:20px;font-size:18pt;padding:10px;border-radius:6px;border-color:#bbb;}
+.comments textarea {width:100%; box-sizing:border-box;}
+textarea {height:100px;}
+
+input[type=submit]
+{width:auto; text-align:left; font-size:18pt;padding:10px;border-radius:6px;text-align:center;}
+

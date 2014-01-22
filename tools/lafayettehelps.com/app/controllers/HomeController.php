@@ -20,4 +20,13 @@ class HomeController extends BaseController {
 		return View::make('hello');
 	}
 
+	public function showAdmin()
+	{
+		// Admin page should show links to 
+		// Manage users
+		// Manage organizations
+		// Manage Requests
+		return View::make('admin');
+	}
+	
 }

@@ -1,4 +1,6 @@
 <?php
+// Tags Table
+
 
 use Illuminate\Database\Migrations\Migration;
 

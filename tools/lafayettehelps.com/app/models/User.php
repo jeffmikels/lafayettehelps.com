@@ -18,6 +18,25 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	// the value is what we use for display
 	protected $role_options = Array('user' => 'User', 'editor' => 'Editor', 'administrator' => 'Administrator');
 	protected $status_options = Array('unverified' => 'Unverified','verified' => 'Verified');
+	protected $properties = Array('id','username','password','email','first_name','last_name','phone','address','city','state','zip','reputation','status','role');
+	protected $public_properties = Array('username','first_name','phone','reputation');
+
+	// some properties should never be updated by the web form
+	// we set their validations to "refuse"
+	protected $validations = Array(
+		'default' => '#^[\d\w\s\.]{1,64}$#',
+		'username' => '#^[\d\w\.]{1,32}$#',
+		'email' => '#^[a-zA-Z0-9.!\#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$#',
+		'phone' => '#^[ 0-9()\-]+$#',
+		'zip' => '#^[0-9]{5}(-[0-9]{4}){0,1}$#',
+		'role' => '#^user|editor|administrator$#',
+		'status' => '#^unverified|verified$#',
+		'reputation' => 'refuse',
+		'created_at' => 'refuse',
+		'updated_at' => 'refuse',
+		'deleted_at' => 'refuse'
+	);
+
 
 	/**
 	 * The attributes excluded from the model's JSON form.
@@ -56,6 +75,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
 
+
+	public function organizations()
+	{
+		return $this->belongsToMany('Organization','relationships','user_id','organization_id')->withPivot('relationship_type');
+	}
+
+
 	public function getRoleOptions()
 	{
 		return $this->role_options;
@@ -65,37 +91,47 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	{
 		return $this->status_options;
 	}
+	public function getProperties()
+	{
+		return $this->properties;
+	}
+	public function getPublicProperties()
+	{
+		return $this->public_properties;
+	}
 
 	public function validateContent($prop, $content)
 	{
-		/* TODO finish form submission validation */
-		return True;
+		$property_exists = false;
+		$content_matches = false;
+		if (in_array($needle = $prop, $haystack = $this->getProperties())) $property_exists = true;
+		/* for now, we assume the content matches */
+
+		$pattern = $this->validations['default'];
+		if (isset($this->validations[$prop])) $pattern = $this->validations[$prop];
+		if ($pattern == 'refuse') return false;
+		$content_matches = preg_match($pattern, $content);
+
+		return ($property_exists && $content_matches);
 	}
 
-	public function validateAndCreateFromArray($arr)
-	{
-		foreach ($arr as $prop=>$value)
-		{
-			if (! $this->validateContent($prop, $value))
-			{
-				//debug($prop . " did not validate");
-				return False;
-			}
-		}
-		$this->updateFromArray($arr);
-		return $this->id;
-	}
 
 	public function validateAndUpdateFromArray($arr)
 	{
 		foreach ($arr as $prop=>$value)
 		{
-			if (! $this->validateContent($prop, $value))
+			if ($value && (! $this->validateContent($prop, $value)))
 			{
 				//debug($prop . " did not validate");
 				return False;
 			}
 		}
+		// handle password changes
+		if (isset($arr['password']))
+			if (! isset($arr['password_confirm'])) return False;
+			elseif ($arr['password'] !== $arr['password_confirm']) return False;
+		unset($arr['password_confirm']);
+
 		if ($this->updateFromArray($arr))
 			return $this->id;
 		else
@@ -109,11 +145,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		{
 			if ($prop == 'password')
 			{
-				$salt = Config::get('app.salt');
-				//$this->password = hash('sha256', hash('sha256', $value) . hash('sha256','it is always important to use a salt for your password hashing'));
-				$this->password = Hash::make($value . $salt);
+				$this->newPassword($value);
 			}
-			elseif (isset($this->$prop))
+			elseif (in_array($prop, $this->getProperties()))
 			{
 				$this->$prop = $value;
 			}
@@ -122,20 +156,52 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
 	}
 
+	public function newPassword($p)
+	{
+		$salt = Config::get('app.salt');
+		$this->password = Hash::make($p . $salt);
+	}
+
+	public function permalink()
+	{
+		$url =action('UserController@showDetail', $this->id);
+		$reputation_class="green";
+		if ($this->reputation < 75) $reputation_class='yellow';
+		if ($this->reputation < 50 ) $reputation_class='orange';
+		if ($this->reputation < 25) $reputation_class='red';
+		$link_text = $this->getPublicName() . ' <span class="reputation_icon mini '. $reputation_class . '">&nbsp;</span>';
+		return '<a href="'. $url . '">' . $link_text . '</a>';
+	}
+
+	public function getPublicName()
+	{
+		return $this->first_name . ' ' . substr($this->last_name, 0, 1) . '.';
+	}
+
 	public function getName()
 	{
 		if (isAdmin() || Auth::user() == $this) return $this->first_name . ' ' . $this->last_name;
 		else return $this->first_name . ' ' . substr($this->last_name, 0, 1) . '.';
 	}
 
-	public function getProfileLink()
+	public function getDetailLink()
 	{
-		return action('UserController@showProfile', $this->id);
+		return action('UserController@showDetail', $this->id);
+	}
+
+	public function getDeleteLink()
+	{
+		return action('UserController@doDelete', $this->id);
 	}
 
 	public function getEditLink()
 	{
-		return action('UserController@editUser', $this->id);
+		return action('UserController@doEdit', $this->id);
+	}
+
+	public function getBlockLink()
+	{
+		return action('UserController@doBlock', $this->id);
 	}
 
 	public function getOwnerId()
@@ -147,13 +213,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	public function hasPermissionTo($action, $object)
 	{
 		global $permissions;
-		// check this user's role against the permissions array
-		if ($permissions[get_class($object)][$action][$this->role]) return True;
 
+		// if this user is a site administrator, simply return True
 		if ($this->role == 'administrator') return True;
 
 		// if this user owns this object, say Yes!
 		if ($this->id == $object->getOwnerId()) return True;
+
+		// check this user's role against the permissions array
+		if ($permissions[get_class($object)][$action][$this->role]) return True;
 
 		return False;
 	}

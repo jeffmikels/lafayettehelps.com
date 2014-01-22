@@ -2,21 +2,12 @@
 
 @section('content')
 
-		@if (Session::has('status'))
-			{{ trans(Session::get('message')) }}
-
-			<?php Session::forget('status'); ?>
-			<?php Session::forget('message'); ?>
-
-		@endif
 
 
-		<p>Edit User #{{ $user->id }}</p>
+		<p>@if (isset($user->id)) Edit User #{{ $user->id }}@endif</p>
 
 		{{-- debug($user) --}}
 		{{-- debug($_POST) --}}
-
-		Logged in as: {{ Auth::user()->username }}
 
 
 		{{ Form::model($user) }}
@@ -82,8 +73,8 @@
 
 		<div class="form_buttons">
 		{{ Form::submit() }}
-		{{ Form::close() }}
 		</div>
+		{{ Form::close() }}
 
 
 @stop

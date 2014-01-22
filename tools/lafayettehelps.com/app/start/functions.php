@@ -1,11 +1,47 @@
 <?php
 
 /* convenience functions for laravel */
+global $session_message;
+global $session_errors;
+
 function debug($s)
 {
 	print "\n<pre class=\"debug\">\n";
 	print_r($s);
 	print "\n</pre>\n";
+}
+
+function error($s) {err($s);}
+
+function err($s)
+{
+	Session::put('status','error');
+	msg($s);
+}
+
+function msg($s)
+{
+	global $session_message;
+	if ($session_message) $session_message .= "<br />";
+	$session_message .= $s;
+	Session::flash('msg', $session_message);
+}
+
+function me()
+{
+	return Auth::user();
+}
+
+function not_implemented()
+{
+	msg('not implemented yet');
+	return Redirect::route('home');
+}
+
+function isSelf($user)
+{
+	if (Auth::check()) return $user == Auth::user();
+	else return false;
 }
 
 function isAdmin($user = False)
@@ -60,6 +96,14 @@ PERMISSIONS
 
 */
 
+global $permissions;
+$permissions['User']['add']['user'] = False;
+$permissions['User']['edit']['user'] = False;
+$permissions['Plea']['add']['user'] = True;
+$permissions['Plea']['edit']['user'] = False;
+$permissions['Organization']['add']['user'] = True;
+$permissions['Organization']['edit']['user'] = False;
+
 class myConfig
 {
 	// put configuration settings here
@@ -79,6 +123,41 @@ class myConfig
 	}
 }
 
+function show_reputation($user)
+{
+	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 50 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
+	$reputation_class="green";
+	if ($user->reputation < 75) $reputation_class='yellow';
+	if ($user->reputation < 50 ) $reputation_class='orange';
+	if ($user->reputation < 25) $reputation_class='red';
+
+	?>
+	<div class="reputation_bar"
+		style="width:100%;box-sizing:border-box;border:1px solid #777;border-radius:3px;overflow:hidden;background:black;"
+		title="<?php print $reputation_note; ?>">
+		<div class="reputation_color <?php print $reputation_class; ?>" style="width:<?php print ($user->reputation); ?>%;background-color:<?php print $reputation_class; ?>;">&nbsp;</div>
+	</div>
+	<?php
+
+}
+
+function show_mini_reputation($user)
+{
+	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 50 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
+
+	$reputation_class="green";
+	if ($user->reputation < 75) $reputation_class='yellow';
+	if ($user->reputation < 50 ) $reputation_class='orange';
+	if ($user->reputation < 25) $reputation_class='red';
+
+	?>
+	<div class="reputation_bar_mini" style="width:50px;box-sizing:border-box;border:0px;background-color:black;height:4px;overflow:hidden;"
+		title="<?php print $reputation_note; ?>">
+		<div class="reputation_color <?php print $reputation_class; ?>" style="width:<?php print ($user->reputation); ?>%;background-color:<?php print $reputation_class; ?>;">&nbsp;</div>
+	</div>
+	<?php
+
+}
 
 
 // don't close out the php tag!

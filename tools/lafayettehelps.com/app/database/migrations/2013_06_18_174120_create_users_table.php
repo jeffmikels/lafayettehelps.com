@@ -27,7 +27,7 @@ class CreateUsersTable extends Migration {
 			$table->string('state');
 			$table->string('zip');
 			$table->integer('reputation')->default(50);
-			$table->string('status')->default('unverified');
+			$table->string('status')->default('unverified'); // verified, unverified, blocked
 			$table->string('role')->default('user'); // administrator, editor, user
 			$table->timestamps();
 			$table->softDeletes();
