@@ -21,6 +21,8 @@ TODO:
 
 	REPUTATION:
 	Describe the reputation system and how recommendations work.
+		Receving help lowers your reputation
+		Fulfilling a pledeg raises your reputation
 
 	</pre>
 
