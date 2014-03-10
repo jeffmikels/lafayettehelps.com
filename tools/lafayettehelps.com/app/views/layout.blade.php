@@ -41,6 +41,9 @@
 
 	<!-- CUSTOM CSS -->
 	<style type="text/css">
+	@import url(http://fonts.googleapis.com/css?family=McLaren);
+	@import url(http://fonts.googleapis.com/css?family=Lora:400italic,700italic,400,700);
+
 	body
 	{
 		padding-top:81px;
@@ -61,7 +64,9 @@
 		background-size:cover;
 		*/
 	}
-	h1, h2, h3, h4, h5, h6 {font-weight:700;}
+	#content {font-weight:300;}
+
+	h1, h2, h3, h4, h5, h6 {font-weight:700; font-family: McLaren; letter-spacing: -2px;}
 	.jumbotron h1 {font-weight:700;}
 
 	/*a {text-decoration:none; display: inline-block;}*/

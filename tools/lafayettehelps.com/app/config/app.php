@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'url' => 'http://test.lafayettehelps.com',
+	'url' => 'http://devel.lafayettehelps.com',
 
 	/*
 	|--------------------------------------------------------------------------

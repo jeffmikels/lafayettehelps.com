@@ -27,7 +27,26 @@ class UserController extends BaseController
 
 	public function doRegister()
 	{
-		return not_implemented();
+		if (Auth::check() and ! isAdmin()) return Redirect::to('user/' . Auth::user()->id);
+		if (Input::has('_token'))
+		{
+			$username = Input::get('username');
+			$salted = Input::get('password') . Config::get('app.salt');
+			if (Auth::attempt( array( 'username' => $username, 'password' => $salted), true ) )
+			{
+				Session::put('status','success');
+				Session::put('message', 'Login successful. Welcome!');
+
+				return Redirect::intended('user/' . Auth::user()->id);
+			}
+			else
+			{
+				Session::put('status','failed');
+				Session::put('message', 'Login Failed... did you forget your password?');
+				return Redirect::route('login')->withInput(Input::except('password'));
+			}
+		}
+		return View::make('user.register', array('user' => new User()));
 	}
 
 	public function doLogout()
