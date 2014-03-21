@@ -2,6 +2,11 @@
 
 return array(
 
+	/* LAFAYETTEHELPS CONFIGURATIONS
+	*/
+
+	'salt' => '$2y$08$fKkMG1xyyxGkoP9XPo1M9Oqv9/1p563j3cmXHxt/J2hSDmBs3CAEm',
+
 	/*
 	|--------------------------------------------------------------------------
 	| Application Debug Mode

@@ -3,35 +3,32 @@
 @section('content')
 
 
+		{{ Form::model($user,array('role'=>'form', 'autocomplete' => 'off')) }}
 
-		<p>@if (isset($user->id)) Edit User #{{ $user->id }}@endif</p>
+		@if ($user->id)
+		<h2>Account Details for {{ $user->permalink() }}</h2>
+		@else
+		<h2>Add New User</h2>
+		@endif
 
-		{{-- debug($user) --}}
-		{{-- debug($_POST) --}}
-
-
-		{{ Form::model($user) }}
-
-		<h2>Account Details for {{$user->first_name}} {{$user->last_name}}</h2>
-
-		<div class="username">
+		<div class="username form-group">
 		{{ Form::label('username', 'Username') }}
-		{{ Form::text('username') }}
+		{{ Form::text('username', $value = null, array('class' => 'form-control')) }}
 		</div>
 
 		<div class="email">
 		{{ Form::label('email', 'Email address') }}
-		{{ Form::email('email', $value = null, $attributes = array()) }}
+		{{ Form::email('email', $value = null, array('class' => 'form-control')) }}
 		</div>
 
 		<div class="password">
 		{{ Form::label('password', 'Password') }}
-		{{ Form::password('password')}}
+		{{ Form::password('password', array('class' => 'form-control'))}}
 		</div>
 
 		<div class="password_confirm">
 		{{ Form::label('password_confirm', 'Password Again') }}
-		{{ Form::password('password_confirm')}}
+		{{ Form::password('password_confirm', array('class' => 'form-control'))}}
 		</div>
 
 
@@ -51,7 +48,7 @@
 
 		<div class="{{ $key }}">
 		{{ Form::label($key) }}
-		{{ Form::text($key) }}
+		{{ Form::text($key, $value = null, array('class' => 'form-control')) }}
 		</div>
 
 		@endforeach
@@ -72,7 +69,7 @@
 		@endif
 
 		<div class="form_buttons">
-		{{ Form::submit() }}
+		{{ Form::submit(null, array('class' => 'btn btn-block btn-primary')) }}
 		</div>
 		{{ Form::close() }}
 

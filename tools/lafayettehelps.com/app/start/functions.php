@@ -15,8 +15,11 @@ function error($s) {err($s);}
 
 function err($s)
 {
-	Session::put('status','error');
-	msg($s);
+	Session::flash('status','error');
+	global $session_errors;
+	if ($session_errors) $session_errors .= "<br />";
+	$session_errors .= $s;
+	Session::flash('error', $session_errors);
 }
 
 function msg($s)
@@ -58,15 +61,24 @@ function isOrgAdmin($user = False)
 	return (Auth::user()->isOrgAdmin());
 }
 
-function hasPermissionTo($action, $object, $user = False)
-{
-	global $permissions;
-	if ($user) return $user->hasPermissionTo($action, $object);
-	if (Auth::check()) return Auth::user()->hasPermissionTo($action, $object);
-	if (isset($permissions[get_class($object)][$action]['anonymous'])) return $permissions[get_class($object)][$action]['anonymous'];
-	return False;
+// function hasPermissionTo($action, $object, $user = False)
+// {
+// 	global $permissions;
+// 	if ($user) return $user->hasPermissionTo($action, $object);
+// 	if (Auth::check()) return Auth::user()->hasPermissionTo($action, $object);
+// 	if (isset($permissions[get_class($object)][$action]['anonymous'])) return $permissions[get_class($object)][$action]['anonymous'];
+// 	return False;
+//
+// }
 
+function saltPassword($p)
+{
+	$salt = Config::get('app.salt');
+	$salted = $p . $salt;
+	//return Hash::make($p . $salt);
+	return $salted;
 }
+
 
 /* TODO NOTES
 
@@ -107,12 +119,6 @@ $permissions['Organization']['edit']['user'] = False;
 class myConfig
 {
 	// put configuration settings here
-
-	private static $settings = Array
-	(
-		'salt' => 'it is very important to use a salt when hashing your passwords',
-	);
-
 
 	private function __construct(){}
 

@@ -18,25 +18,9 @@
 	<!-- TABLESORTER -->
 	<link type="text/css" rel="stylesheet" href="/tablesorter/css/theme.default.css" media="all" />
 
+
 	<!-- MY PERSONAL CSS -->
-	<!-- <link type="text/css" rel="stylesheet" href="/css/style.css" media="all" /> -->
-
-
-	<!-- SCRIPT FILES -->
-	<!-- jquery -->
-	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-
-	<!-- Latest compiled and minified Bootstrap JavaScript -->
-	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
-	<script src="/js/bootstrap.min.js"></script>
-
-	<!-- BOOTSTRAP DATEPICKER -->
-	<script src="/js/bootstrap-datepicker.js"></script>
-
-	<!-- TABLESORTER -->
-	<script type="text/javascript" src="/tablesorter/js/jquery.tablesorter.js"></script>
-
-
+	<link type="text/css" rel="stylesheet" href="/css/style.css" media="all" />
 
 
 	<!-- CUSTOM CSS -->
@@ -80,6 +64,21 @@
 	#old-content {padding: 20px; background:rgba(255,255,255,.9);}
 
 	</style>
+
+	<!-- SCRIPT FILES -->
+	<!-- jquery -->
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+	<!-- Latest compiled and minified Bootstrap JavaScript -->
+	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
+	<script src="/js/bootstrap.min.js"></script>
+
+	<!-- BOOTSTRAP DATEPICKER -->
+	<script src="/js/bootstrap-datepicker.js"></script>
+
+	<!-- TABLESORTER -->
+	<script type="text/javascript" src="/tablesorter/js/jquery.tablesorter.js"></script>
+
 
 </head>
 <body>
@@ -169,16 +168,13 @@
 
 		@if (Session::has('error'))
 		<div class="alert alert-danger" id="errors">
-			{{ Session::get('reason') }}
+			{{ Session::get('error') }}
 		</div>
 		@endif
 
 		@if (Session::has('msg'))
 		<div class="alert alert-info" id="messages">
 			{{ Session::get('msg') }}
-			@if (Session::has('status'))
-			{{ Session::get('message') }}
-			@endif
 		</div>
 		@endif
 
@@ -190,7 +186,7 @@
 </body>
 </html>
 <script>
-$(function()
+$(document).ready(function()
 {
 	$('.date-widget').datepicker();
 	$('*').tooltip();

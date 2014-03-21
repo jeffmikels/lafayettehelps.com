@@ -30,22 +30,31 @@ class UserController extends BaseController
 		if (Auth::check() and ! isAdmin()) return Redirect::to('user/' . Auth::user()->id);
 		if (Input::has('_token'))
 		{
-			$username = Input::get('username');
-			$salted = Input::get('password') . Config::get('app.salt');
-			if (Auth::attempt( array( 'username' => $username, 'password' => $salted), true ) )
-			{
-				Session::put('status','success');
-				Session::put('message', 'Login successful. Welcome!');
+			$new_user_fields = Input::except('_token','id','role','status','reputation','created_at','updated_at','deleted_at');
+			// Registration validator is different from the user edit validator
+			$validator_rules = Array(
+				'username' => 'required|unique:users',
+				'email' => 'required|email',
+				'password' => 'required|confirmed|min:8',
+				'phone' => 'regex:#^[ 0-9()-]+$#',
+				'zip' => 'regex:#^[0-9]{5}(-[0-9]{4}){0,1}$#'
+			);
+			$validator = Validator::make($new_user_fields, $validator_rules);
 
-				return Redirect::intended('user/' . Auth::user()->id);
-			}
-			else
+			if ($validator->fails())
 			{
-				Session::put('status','failed');
-				Session::put('message', 'Login Failed... did you forget your password?');
-				return Redirect::route('login')->withInput(Input::except('password'));
+				err('Registration Failed... see below for errors');
+				return Redirect::route('register')->withInput(Input::except('password'))->withErrors($validator);
+			}
+
+			$user = new User();
+			if ($user->validateAndUpdateFromArray(Input::except('_token','id')) )
+			{
+				msg('Thank you for registering... a confirmation email has been sent.');
+				return Redirect::route('login');
 			}
 		}
+
 		return View::make('user.register', array('user' => new User()));
 	}
 
@@ -63,18 +72,15 @@ class UserController extends BaseController
 		if (Input::has('_token'))
 		{
 			$username = Input::get('username');
-			$salted = Input::get('password') . Config::get('app.salt');
+			$salted = saltPassword(Input::get('password'));
 			if (Auth::attempt( array( 'username' => $username, 'password' => $salted), true ) )
 			{
-				Session::put('status','success');
-				Session::put('message', 'Login successful. Welcome!');
-
+				msg('Login successful. Welcome!');
 				return Redirect::intended('user/' . Auth::user()->id);
 			}
 			else
 			{
-				Session::put('status','failed');
-				Session::put('message', 'Login Failed... did you forget your password?');
+				err('Login Failed... did you forget your password?');
 				return Redirect::route('login')->withInput(Input::except('password'));
 			}
 		}
@@ -117,17 +123,16 @@ class UserController extends BaseController
 	public function doAdd()
 	{
 		$user = new User;
-		if (! me()->hasPermissionTo('add', $user));
+		if (! me()->hasPermissionTo('add', $user))
 		{
-			Session::put('status','error');
-			Session::put('message', 'You do not have permission to add users!');
-			return Redirect::to('not-allowed');
+			dd(! me()->hasPermissionTo('add', $user));
+			err('You do not have permission to add users!');
+			return Redirect::route('home');
 		}
 
 		if (Input::has('_token'))
 		{
 			$id = $user->validateAndUpdateFromArray(Input::all());
-
 			return Redirect::to('user/'. $user->id);
 		}
 		return View::make('user.edit', array('user' => $user));
@@ -146,14 +151,12 @@ class UserController extends BaseController
 		$user = User::find($id);
 		if ( ! Auth::user()->hasPermissionTo('edit',$user))
 		{
-			Session::put('status','error');
-			Session::put('message', 'You do not have permission to edit this user!');
+			err('You do not have permission to edit this user!');
 			return Redirect::to('user/'. $user->id . '/edit');
 		}
 		elseif (Input::has('password') && (Input::get('password') != Input::get('password_confirm','-1')))
 		{
-			Session::put('status','error');
-			Session::put('message', 'Your passwords didn\'t match!');
+			err('Your passwords didn\'t match!');
 			return Redirect::to('user/'. $user->id . '/edit')->withInput(Input::except('password'));
 		}
 		else
@@ -162,13 +165,11 @@ class UserController extends BaseController
 
 			if($user->validateAndUpdateFromArray($form_data))
 			{
-				Session::put('status','success');
-				Session::put('message', 'Saved!');
+				msg('User details saved successfully!');
 			}
 			else
 			{
-				Session::put('status','error');
-				Session::put('message','entered data did not validate');
+				err('entered data did not validate');
 				Input::flash();
 			}
 			return Redirect::to('user/'. $user->id . '/edit');

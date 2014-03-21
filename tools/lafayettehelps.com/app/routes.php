@@ -14,7 +14,8 @@
 
 Route::get('/test', function()
 {
-	dd(action('UserController@doDelete', 99));
+	$user = new User();
+	dd($user->id);
 });
 
 // HOME AND ADMIN

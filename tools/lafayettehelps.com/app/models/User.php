@@ -21,6 +21,19 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	protected $properties = Array('id','username','password','email','first_name','last_name','phone','address','city','state','zip','reputation','status','role');
 	protected $public_properties = Array('username','first_name','phone','reputation');
 
+	// default property values
+//   public $reputation = 75;
+//  	public $status = 'unverified';
+// 	public $role = 'user';
+
+
+	public function __construct()
+ 	{
+ 		if (! $this->reputation) $this->reputation = 75;
+ 		if (! $this->status) $this->status = 'unverified';
+ 		if (! $this->role) $this->role = 'user';
+ 	}
+
 	// some properties should never be updated by the web form
 	// we set their validations to "refuse"
 	protected $validations = Array(
@@ -28,6 +41,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		'username' => '#^[\d\w\.]{1,32}$#',
 		'email' => '#^[a-zA-Z0-9.!\#$%&\'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$#',
 		'phone' => '#^[ 0-9()\-]+$#',
+		'password' => '#........+#',
 		'zip' => '#^[0-9]{5}(-[0-9]{4}){0,1}$#',
 		'role' => '#^user|editor|administrator$#',
 		'status' => '#^unverified|verified$#',
@@ -105,37 +119,69 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		$property_exists = false;
 		$content_matches = false;
 		if (in_array($needle = $prop, $haystack = $this->getProperties())) $property_exists = true;
-		/* for now, we assume the content matches */
 
 		$pattern = $this->validations['default'];
 		if (isset($this->validations[$prop])) $pattern = $this->validations[$prop];
 		if ($pattern == 'refuse') return false;
 		$content_matches = preg_match($pattern, $content);
 
+		//print "<p>$prop :: $content :: $pattern :: $content_matches</p>";
 		return ($property_exists && $content_matches);
 	}
 
 
 	public function validateAndUpdateFromArray($arr)
 	{
+		// check each property value against the validation regexes defined above
 		foreach ($arr as $prop=>$value)
 		{
+			$failed = Array();
 			if ($value && (! $this->validateContent($prop, $value)))
 			{
 				//debug($prop . " did not validate");
-				return False;
+				$failed[$prop] = "$value is an invalid option for $prop";
 			}
 		}
-		// handle password changes
-		if (isset($arr['password']))
-			if (! isset($arr['password_confirm'])) return False;
-			elseif ($arr['password'] !== $arr['password_confirm']) return False;
+
+		// perform special checks for passwords
+
+
+		// but leaving the password unchanged
+		// if there is no id set, then we are creating a new user and must have a password
+		if (! isset($this->id) and ! (isset($arr['password']) and $arr['password']))
+		{
+			$failed['password'] = "You must have a password when you are registering a new user";
+		}
+
+		// if there is something in the password field, the password_confirm field must equal it.
+		if (isset($arr['password']) and $arr['password'])
+		{
+			if (! isset($arr['password_confirm']) and ! $arr['password_confirm'] === $arr['password_confirm'])
+			{
+				$failed['password_confirm'] = 'Password fields did not match';
+			}
+		}
+
+		if ($failed)
+		{
+			Session::flash('validation_failures', $failed);
+			err('There\'s a problem with the information you entered. Please double-check it below.');
+			return False;
+		}
+
 		unset($arr['password_confirm']);
+
+
+		// print "preparing to save new user";
+		// dd($arr);
 
 		if ($this->updateFromArray($arr))
 			return $this->id;
 		else
+		{
+			err('I had an error registering you. Perhaps someone has already registered using that username.');
 			return False;
+		}
 
 	}
 
@@ -145,7 +191,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		{
 			if ($prop == 'password')
 			{
-				$this->newPassword($value);
+				// remember that we only make the hash when saving the password to the database
+				// Laravel automatically uses the Hashing function in the Auth::attempt method
+				$this->password = Hash::make(saltPassword($value));
 			}
 			elseif (in_array($prop, $this->getProperties()))
 			{
@@ -156,15 +204,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
 	}
 
-	public function newPassword($p)
-	{
-		$salt = Config::get('app.salt');
-		$this->password = Hash::make($p . $salt);
-	}
-
 	public function permalink()
 	{
-		$url =action('UserController@showDetail', $this->id);
+		$url = action('UserController@showDetail', $this->id);
 		$reputation_class="green";
 		if ($this->reputation < 75) $reputation_class='yellow';
 		if ($this->reputation < 50 ) $reputation_class='orange';

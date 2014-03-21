@@ -2,7 +2,7 @@
 
 @section('content')
 	<h2><a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
-	@if ( hasPermissionTo('edit', $user) )
+	@if ( me()->hasPermissionTo('edit', $user) )
 	<small><a href="{{ $user->getEditLink() }}">[EDIT]</a></small>
 	@endif
 	</h2>
