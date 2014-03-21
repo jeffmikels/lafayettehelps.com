@@ -184,7 +184,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		}
 
 	}
-
+	
 	public function updateFromArray($arr)
 	{
 		foreach ($arr as $prop=>$value)
@@ -193,7 +193,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 			{
 				// remember that we only make the hash when saving the password to the database
 				// Laravel automatically uses the Hashing function in the Auth::attempt method
-				$this->password = Hash::make(saltPassword($value));
+				$this->setPassword($value);
 			}
 			elseif (in_array($prop, $this->getProperties()))
 			{
@@ -201,7 +201,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 			}
 		}
 		return($this->save());
-
+	}
+	
+	public function setPassword($pw)
+	{
+		$this->password = $this->newPassword($pw);
+	}
+	
+	public function newPassword($pw)
+	{
+		return Hash::make(saltPassword($pw));
 	}
 
 	public function permalink()

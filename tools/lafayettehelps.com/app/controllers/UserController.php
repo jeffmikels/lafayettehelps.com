@@ -7,8 +7,16 @@ class UserController extends BaseController
 	 */
 	public function showDetail($id)
 	{
-			if (! $user = User::find($id) ) App::abort(404);
-			if (! Auth::check() ) App::abort(404);
+			if (! $user = User::find($id) )
+			{
+				err('I could not find the user you were looking for.');
+				return Redirect::route('users');
+			}
+			if (! Auth::check() )
+			{
+				err('You need to be logged in to view user records.');
+				return Redirect::route('login');
+			}
 			return View::make('user.profile', array('user' => $user));
 	}
 
@@ -27,7 +35,10 @@ class UserController extends BaseController
 
 	public function doRegister()
 	{
+		// if the user is logged in and is not an Admin, we redirect to that user's profile
 		if (Auth::check() and ! isAdmin()) return Redirect::to('user/' . Auth::user()->id);
+		
+		// if the form was submitted properly, we register a new user
 		if (Input::has('_token'))
 		{
 			$new_user_fields = Input::except('_token','id','role','status','reputation','created_at','updated_at','deleted_at');
@@ -50,14 +61,56 @@ class UserController extends BaseController
 			$user = new User();
 			if ($user->validateAndUpdateFromArray(Input::except('_token','id')) )
 			{
-				msg('Thank you for registering... a confirmation email has been sent.');
+				// everything looks good, so now, we finish things up.
+				// send confirmation email
+				$this->sendConfirmationEmail($user);
+				
+				// say Thank You.
+				msg('A confirmation email has been sent to you. You need to click on the link in that email before you will be allowed to log into this site.');
 				return Redirect::route('login');
 			}
 		}
 
 		return View::make('user.register', array('user' => new User()));
 	}
+	
+	public function sendConfirmationEmail($user)
+	{
+		$confirmation_code = hash('sha256',$user->email);
+		$confirmation_link = URL::route('userconfirm', array('id'=>$user->id, 'confirmation'=>$confirmation_code));
+		$email = "
+Thank you for registering a user account at lafayettehelps.com. In order for your account to be activated, you need to click on this confirmation code.
 
+$confirmation_link";
+		
+		$subject = 'LafayetteHelps.com Email Verification';
+		$headers = "From: webmaster@lafayettehelps.com\r\nReply-To: webmaster@lafayettehelps.com\r\n";
+		
+		mail($user->email, $subject, $email, $headers);
+	}
+	
+	public function doConfirm($id, $confirmation)
+	{
+		// first, we attempt to find the user id in the database
+		$user = User::find($id);
+		if (! $user )
+		{
+			err('I could not find a user account to associate with this confirmation link.');
+			return Redirect::route('register');
+		}
+		if ($confirmation == hash('sha256',$user->email))
+		{
+			$user->status = 'verified';
+			$user->save();
+			msg('Your user account has been confirmed, and you can now log in.');
+			return Redirect::route('login');
+		}
+		
+		err('You somehow clicked on an invalid email confirmation link.');
+		return Redirect::route('register');
+		
+	}
+	
 	public function doLogout()
 	{
 		Auth::logout();

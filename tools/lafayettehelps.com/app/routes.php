@@ -14,8 +14,10 @@
 
 Route::get('/test', function()
 {
-	$user = new User();
-	dd($user->id);
+	$user = User::find(1);
+	$uc = new UserController();
+	$uc->sendConfirmationEmail($user);
+	dd('hello');
 });
 
 // HOME AND ADMIN
@@ -64,6 +66,7 @@ Route::get('user/{id}', array('as'=>'userprofile', 'uses'=>'UserController@showD
 Route::get('user/{id}/edit', array('as'=>'useredit', 'uses'=>'UserController@doEdit'));
 Route::post('user/{id}/edit', array('before'=>'csrf', 'uses' => 'UserController@doSave'));
 Route::get('user/{id}/delete', array('before'=>'csrf', 'uses' => 'UserController@doDelete'));
+Route::get('user/{id}/confirm/{confirmation}', array('as'=>'userconfirm', 'uses' => 'UserController@doConfirm'));
 
 // RECOMMENDATIONS
 Route::get('recommendation/{id}', array('as'=>'recommendationdetail', 'uses'=>'RecommendationController@showDetail'));
@@ -138,15 +141,25 @@ Route::post('comment/add', array('before'=>'csrf', 'uses' => 'CommentController@
 
 
 // PASSWORD VIEWS
-Route::get('password/forgot', 'UserController@doForgotForm');
+Route::get('password/forgot', array('as'=>'forgot', 'uses'=>'UserController@doForgotForm'));
 Route::post('password/forgot', array('before'=>'csrf', function()
 {
 	$credentials = array();
 	if (Input::has('username')) $credentials['username'] = Input::get('username');
 	elseif (Input::has('email')) $credentials['email'] = Input::get('email');
-	//else return Redirect::to('password/forgot')->withInput();
+	else
+	{
+		msg('No email was set.');
+		return Redirect::route('forgot');
+	}
 	Log::info('Preparing to send email');
-	return Password::remind($credentials);
+	Password::remind($credentials, function($message)
+	{
+	    $message->subject('LafayetteHelps.com Password Reminder');
+	});
+	
+	msg('Please check your email for a password reminder.');
+	return Redirect::route('login');
 }));
 
 Route::get('password/reset/{token}', function($token)
@@ -154,12 +167,15 @@ Route::get('password/reset/{token}', function($token)
 	if (Auth::check()) return Redirect::to('user/' . Auth::user()->id . '/edit');
     else return View::make('password.reset')->with('token', $token);
 });
+
 Route::post('password/reset/{token}', function()
 {
-	$credentials = array('email' => Input::get('email'));
+	$credentials = array();
+	if (Input::has('username')) $credentials['username'] = Input::get('username');
+	elseif (Input::has('email')) $credentials['email'] = Input::get('email');
 	return Password::reset($credentials, function($user, $password)
 	{
-		$user->newPassword($password);
+		$user->setPassword($password);
 		$user->save();
 		return Redirect::route('login');
 	});
