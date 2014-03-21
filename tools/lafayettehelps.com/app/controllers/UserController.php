@@ -126,14 +126,14 @@ $confirmation_link";
 		{
 			$username = Input::get('username');
 			$salted = saltPassword(Input::get('password'));
-			if (Auth::attempt( array( 'username' => $username, 'password' => $salted), true ) )
+			if (Auth::attempt( array( 'username' => $username, 'password' => $salted, 'status' => 'verified'), true ) )
 			{
 				msg('Login successful. Welcome!');
 				return Redirect::intended('user/' . Auth::user()->id);
 			}
 			else
 			{
-				err('Login Failed... did you forget your password?');
+				err('Login Failed. Make sure you have confirmed your email address and are using the right password.');
 				return Redirect::route('login')->withInput(Input::except('password'));
 			}
 		}
