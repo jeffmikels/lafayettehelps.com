@@ -14,9 +14,10 @@
 
 Route::get('/test', function()
 {
-	$org = Organization::find(2);
-	$org->makeAdmin(1);
-	Redirect::route('organizations');
+	$org = Organization::find(1);
+	Header('Content-type: text/plain');
+	var_dump(User::find(3)->isOrgAdmin($org));
+	dd();
 });
 
 // HOME AND ADMIN
@@ -168,7 +169,7 @@ Route::post('password/forgot', array('before'=>'csrf', function()
 	{
 	    $message->subject('LafayetteHelps.com Password Reminder');
 	});
-	
+
 	msg('Please check your email for a password reminder.');
 	return Redirect::route('login');
 }));
@@ -231,16 +232,16 @@ Route::post('{object_name}/search/json', array('as' => 'search', function($objec
 	$query = '%' . str_replace(' ','%', $query) . '%';
 	switch ($object_name)
 	{
-		case 'users':
+		case 'user':
 			$results = User::where('email','LIKE',$query)->orWhere('first_name','LIKE',$query)->get()->toArray();
 			foreach ($results as $key => $user)
 			{
 				$full_name = $user['first_name'] . ' ' . substr($user['last_name'],0,1);
-				$results[$key]['full_name'] = $full_name;
+				$results[$key]['name'] = $full_name;
 				unset($results[$key]['last_name']);
 			}
 			break;
-		case 'organizations':
+		case 'organization':
 			$results = Organization::where('name','LIKE',$query)->get();
 			break;
 		default:

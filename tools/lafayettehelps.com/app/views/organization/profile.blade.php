@@ -1,11 +1,17 @@
 @extends('layout')
 
 @section('content')
-	<h2><a href="{{ $organization->getDetailLink() }}">{{ $organization->name }}</a>
-	@if ( me()->hasPermissionTo('edit', $organization) )
-	<small><a href="{{ $organization->getEditLink() }}">[EDIT]</a></small>
+	@if ($organization->status == 'unverified')
+	<div class="alert alert-danger">unverified</div>
 	@endif
-	</h2>
+
+	<div class="well">
+		<h2><a href="{{ $organization->getDetailLink() }}">{{ $organization->name }}</a>
+		@if ( me()->hasPermissionTo('edit', $organization) )
+		<small><a class="btn btn-info" href="{{ $organization->getEditLink() }}">EDIT</a></small>
+		@endif
+		</h2>
+	</div>
 
 	<h2>Details</h2>
 

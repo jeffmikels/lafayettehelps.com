@@ -2,22 +2,28 @@
 
 @section('content')
 	<?php
-	$gravatar_link = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email))) . ".jpg?s=100";		
+	$gravatar_link = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email))) . ".jpg?s=100";
 	?>
-	<img class="gravatar thumbnail pull-right" src="{{$gravatar_link}}" />
-	<h2><a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
-	@if ( me()->hasPermissionTo('edit', $user) )
-	<small><a href="{{ $user->getEditLink() }}">[EDIT]</a></small>
+	@if (me() == $user)
+	<div class="alert alert-info">MY ACCOUNT</div>
 	@endif
-	@if ( me()->hasPermissionTo('delete', $user) )
-	<small><a href="{{ route('userdelete', array('id' => $user->id)) }}" onclick="return doconfirm('Are you sure you want to delete this user?');">[DELETE]</a></small>
-	@endif
-	</h2>
-	
-	<h2>Reputation</h2>
 
-	<?php show_reputation($user); ?>
 
+	<div class="well">
+		<img class="gravatar thumbnail pull-right" src="{{$gravatar_link}}" />
+		<h2><a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
+		@if ( me()->hasPermissionTo('edit', $user) )
+		<small><a class="btn btn-info" href="{{ $user->getEditLink() }}">EDIT</a></small>
+		@endif
+		@if ( me()->hasPermissionTo('delete', $user) )
+		<small><a class="btn btn-info" href="{{ route('userdelete', array('id' => $user->id)) }}" onclick="return doconfirm('Are you sure you want to delete this user?');">DELETE</a></small>
+		@endif
+		</h2>
+
+		<h2>Reputation</h2>
+
+		<?php show_reputation($user); ?>
+	</div>
 
 	<h2>Details</h2>
 

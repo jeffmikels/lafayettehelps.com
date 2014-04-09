@@ -57,11 +57,11 @@ function isAdmin($user = False)
 	return (Auth::user()->role == 'administrator');
 }
 
-function isOrgAdmin($user = False)
+function isOrgAdmin($user = False, $org=NULL)
 {
-	if ($user) return ($user->isOrgAdmin());
+	if ($user) return ($user->isOrgAdmin($org));
 	if (! Auth::check() ) return False;
-	return (Auth::user()->isOrgAdmin());
+	return (Auth::user()->isOrgAdmin($org));
 }
 
 // function hasPermissionTo($action, $object, $user = False)
@@ -114,10 +114,16 @@ PERMISSIONS
 global $permissions;
 $permissions['User']['add']['user'] = False;
 $permissions['User']['edit']['user'] = False;
+$permissions['User']['edit']['self'] = True;
+$permissions['User']['delete']['user'] = False;
 $permissions['Plea']['add']['user'] = True;
 $permissions['Plea']['edit']['user'] = False;
+$permissions['Plea']['edit']['self'] = True;
+$permissions['Plea']['delete']['self'] = False;
 $permissions['Organization']['add']['user'] = True;
 $permissions['Organization']['edit']['user'] = False;
+$permissions['Organization']['edit']['orgadmin'] = True;
+$permissions['Organization']['delete']['orgadmin'] = False;
 
 class myConfig
 {
@@ -168,16 +174,59 @@ function show_mini_reputation($user)
 }
 
 
-function show_search_bar($description, $search_url)
+function show_search_bar($object)
 {
 	?>
-	
-	<input class="form-control" name="search" placeholder="<?php print $description; ?>" id="searchbox" />
+
+	<input class="form-control" name="search" id="searchbox" placeholder="Start typing to search" />
 	<script type="text/javascript">
-	
-	
+	$( "#searchbox" ).autocomplete({
+		source: function( request, response ) {
+			$.ajax({
+				url: "<?php echo route('search', array('object_name' => $object)); ?>",
+				dataType: "json",
+				type: 'POST',
+				data: {
+					query: request.term
+				},
+				success: function( items ) {
+					console.log(items);
+					response_list = new Array();
+					contact_ids = new Array();
+					//if (items.length > 0 ) response_list.push({ label: '-- HOUSEHOLDS ----', value: '' });
+					for (i in items)
+					{
+						label = items[i].name;
+						id = items[i].id;
+						value = label;
+						response_list.push( {
+							label: label,
+							value: value,
+							id: id,
+							data: items[i]
+						} );
+					}
+					response(response_list);
+				}
+			});
+		},
+		minLength: 2,
+		select: function( event, ui ) {
+			console.log(ui);
+			obj = ui.item.data;
+			id = obj.id;
+			document.location.href = '/<?php print $object; ?>/' + id;
+		},
+		open: function() {
+			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+		},
+		close: function() {
+			$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+		}
+	}); // $("#searchbox")
+	$("#searchbox").select();
 	</script>
-	
+
 	<?php
 }
 

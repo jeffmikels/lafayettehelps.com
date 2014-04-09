@@ -38,7 +38,7 @@ class UserController extends BaseController
 	{
 		// if the user is logged in and is not an Admin, we redirect to that user's profile
 		if (Auth::check() and ! isAdmin()) return Redirect::to('user/' . Auth::user()->id);
-		
+
 		// if the form was submitted properly, we register a new user
 		if (Input::has('_token'))
 		{
@@ -65,7 +65,7 @@ class UserController extends BaseController
 				// everything looks good, so now, we finish things up.
 				// send confirmation email
 				$this->sendConfirmationEmail($user);
-				
+
 				// say Thank You.
 				msg('A confirmation email has been sent to you. You need to click on the link in that email before you will be allowed to log into this site.');
 				return Redirect::route('login');
@@ -74,7 +74,7 @@ class UserController extends BaseController
 
 		return View::make('user.register', array('user' => new User()));
 	}
-	
+
 	public function sendConfirmationEmail($user)
 	{
 		$confirmation_code = hash('sha256',$user->email);
@@ -83,13 +83,13 @@ class UserController extends BaseController
 Thank you for registering a user account at lafayettehelps.com. In order for your account to be activated, you need to click on this confirmation code.
 
 $confirmation_link";
-		
+
 		$subject = 'LafayetteHelps.com Email Verification';
 		$headers = "From: webmaster@lafayettehelps.com\r\nReply-To: webmaster@lafayettehelps.com\r\n";
-		
+
 		mail($user->email, $subject, $email, $headers);
 	}
-	
+
 	public function doConfirm($id, $confirmation_code)
 	{
 		// first, we attempt to find the user id in the database
@@ -106,12 +106,12 @@ $confirmation_link";
 			msg('Your user account has been confirmed, and you can now log in.');
 			return Redirect::route('login');
 		}
-		
+
 		err('You somehow clicked on an invalid email confirmation link.');
 		return Redirect::route('register');
-		
+
 	}
-	
+
 	public function doLogout()
 	{
 		Auth::logout();
@@ -169,12 +169,17 @@ $confirmation_link";
 
 	public function doDelete($id)
 	{
-		if (isAdmin())
+		$target_user = User::find($id);
+		if (me()->hasPermissionTo('delete', $target_user))
 		{
-			$user = User::find($id);
-			$user->delete();
+			if (me() == $target_user)
+			{
+				Auth::logout();
+				msg('You are now logged out, and the account will be deleted.');
+			}
+			$target_user->delete();
 			Session::flash('status', 'success');
-			msg('User Successfully Deleted');
+			msg('User Account Successfully Deleted');
 			return Redirect::route('users');
 		}
 		else

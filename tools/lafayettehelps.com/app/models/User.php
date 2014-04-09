@@ -12,10 +12,10 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 * @var string
 	 */
 	protected $table = 'users';
-	
+
 	// enable soft deletes
 	protected $softDelete = true;
-	
+
 	// options arrays are created like so:
 	// the key is what gets stored in the database
 	// the value is what we use for display
@@ -98,6 +98,10 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->belongsToMany('Organization','relationships','user_id','organization_id')->withPivot('relationship_type');
 	}
 
+	public function administers()
+	{
+		return $this->organizations()->where('relationship_type', 'admin')->get();
+	}
 
 	public function getRoleOptions()
 	{
@@ -187,7 +191,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		}
 
 	}
-	
+
 	public function updateFromArray($arr)
 	{
 		foreach ($arr as $prop=>$value)
@@ -205,12 +209,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		}
 		return($this->save());
 	}
-	
+
 	public function setPassword($pw)
 	{
 		$this->password = $this->newPassword($pw);
 	}
-	
+
 	public function newPassword($pw)
 	{
 		return Hash::make(saltPassword($pw));
@@ -226,12 +230,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		$link_text = $this->getPublicName() . ' <span class="reputation_icon mini '. $reputation_class . '">&nbsp;</span>';
 		return '<a href="'. $url . '">' . $link_text . '</a>';
 	}
-	
+
 	public function showReputation()
 	{
 		show_reputation($this);
 	}
-	
+
 	public function showMiniReputation()
 	{
 		show_mini_reputation($this);
@@ -277,17 +281,28 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	public function hasPermissionTo($action, $object)
 	{
 		global $permissions;
-		
-		// if this user is a site administrator, simply return True
-		if ($this->role == 'administrator') return True;
+		$role = $this->role;
 
-		// if this user owns this object, say Yes!
-		if ($this->id && $this->id == $object->getOwnerId()) return True;
+		// if this user is a site administrator, simply return True
+		if ($role == 'administrator') return True;
+
+		// if this user owns this object, then make the role be "self"
+		// if ($this->id && $this->id == $object->getOwnerId()) return True;
+		if ($this->id && $this->id == $object->getOwnerId()) $role == 'self';
+
+
+		// if this user is an administrator of this organization, change role to 'orgadmin'
+		if (get_class($object) == 'Organization' && me()->isOrgAdmin($object)) $role = 'orgadmin';
 
 		// check this user's role against the permissions array
-		if ($permissions[get_class($object)][$action][$this->role]) return True;
-
-		return False;
+		try
+		{
+			return $permissions[get_class($object)][$action][$role];
+		}
+		catch (Exception $e)
+		{
+			return False;
+		}
 	}
 
 	public function getOrgs()
@@ -295,13 +310,19 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		/* TODO */
 	}
 
-	public function isOrgAdmin()
+	public function isOrgAdmin($org = NULL)
 	{
 		/* TODO */
 		/*
 			Grab all organizational relationships where user_id = $this->id and relationship_type = 'admin'
 			if yes, return true
 		*/
+		$orgs = $this->administers()->toArray();
+		if ($org === NULL && count($orgs) > 0) return True;
+		foreach ($orgs as $o)
+		{
+			if ($o['id'] === $org['id']) return True;
+		}
 		return False;
 	}
 
