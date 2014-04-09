@@ -12,12 +12,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 * @var string
 	 */
 	protected $table = 'users';
-
+	
+	// enable soft deletes
+	protected $softDelete = true;
+	
 	// options arrays are created like so:
 	// the key is what gets stored in the database
 	// the value is what we use for display
-	protected $role_options = Array('user' => 'User', 'editor' => 'Editor', 'administrator' => 'Administrator');
-	protected $status_options = Array('unverified' => 'Unverified','verified' => 'Verified');
+	protected $role_options = Array('user' => 'User', 'moderator' => 'Moderator', 'editor' => 'Editor', 'administrator' => 'Administrator');
+	protected $status_options = Array('unverified' => 'Unverified','verified' => 'Verified', 'blocked'=>'Blocked');
 	protected $properties = Array('id','username','password','email','first_name','last_name','phone','address','city','state','zip','reputation','status','role');
 	protected $public_properties = Array('username','first_name','phone','reputation');
 
@@ -223,6 +226,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		$link_text = $this->getPublicName() . ' <span class="reputation_icon mini '. $reputation_class . '">&nbsp;</span>';
 		return '<a href="'. $url . '">' . $link_text . '</a>';
 	}
+	
+	public function showReputation()
+	{
+		show_reputation($this);
+	}
+	
+	public function showMiniReputation()
+	{
+		show_mini_reputation($this);
+	}
 
 	public function getPublicName()
 	{
@@ -264,12 +277,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	public function hasPermissionTo($action, $object)
 	{
 		global $permissions;
-
+		
 		// if this user is a site administrator, simply return True
 		if ($this->role == 'administrator') return True;
 
 		// if this user owns this object, say Yes!
-		if ($this->id == $object->getOwnerId()) return True;
+		if ($this->id && $this->id == $object->getOwnerId()) return True;
 
 		// check this user's role against the permissions array
 		if ($permissions[get_class($object)][$action][$this->role]) return True;

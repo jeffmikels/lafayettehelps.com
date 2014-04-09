@@ -16,8 +16,9 @@
 		</div>
 
 		<div class="form_buttons">
-		<a class="btn btn-info" href="/password/forgot">Forgot Password</a>
-		{{ Form::submit('Submit', array('class'=>'btn btn-default')) }}
+		{{ Form::submit('Submit', array('class'=>'btn btn-info')) }}
+		<a class="btn btn-default" href="/password/forgot">Forgot Password</a>
+		<a class="btn btn-default" href="/register">Register New Account</a>
 		</div>
 		{{ Form::close() }}
 

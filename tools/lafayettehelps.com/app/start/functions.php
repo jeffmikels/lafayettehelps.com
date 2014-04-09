@@ -32,7 +32,10 @@ function msg($s)
 
 function me()
 {
-	return Auth::user();
+	if (Auth::check())
+		return Auth::user();
+	else
+		return new User();
 }
 
 function not_implemented()
@@ -131,7 +134,7 @@ class myConfig
 
 function show_reputation($user)
 {
-	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 50 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
+	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 75 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
 	$reputation_class="green";
 	if ($user->reputation < 75) $reputation_class='yellow';
 	if ($user->reputation < 50 ) $reputation_class='orange';
@@ -149,7 +152,7 @@ function show_reputation($user)
 
 function show_mini_reputation($user)
 {
-	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 50 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
+	$reputation_note = "This user has a reputation of " . $user->reputation . ". All users start with 75 and it goes up every time they help someone and down a little every time they request help. People can also get a reputation boost when someone fills out a recommendation for them.";
 
 	$reputation_class="green";
 	if ($user->reputation < 75) $reputation_class='yellow';
@@ -157,13 +160,25 @@ function show_mini_reputation($user)
 	if ($user->reputation < 25) $reputation_class='red';
 
 	?>
-	<div class="reputation_bar_mini" style="width:50px;box-sizing:border-box;border:0px;background-color:black;height:4px;overflow:hidden;"
+	<div class="reputation_bar_mini" style="width:50px;height:8px;border:1px solid black;border-radius:10px;box-sizing:border-box;background-color:black;overflow:hidden;"
 		title="<?php print $reputation_note; ?>">
 		<div class="reputation_color <?php print $reputation_class; ?>" style="width:<?php print ($user->reputation); ?>%;background-color:<?php print $reputation_class; ?>;">&nbsp;</div>
 	</div>
 	<?php
-
 }
 
+
+function show_search_bar($description, $search_url)
+{
+	?>
+	
+	<input class="form-control" name="search" placeholder="<?php print $description; ?>" id="searchbox" />
+	<script type="text/javascript">
+	
+	
+	</script>
+	
+	<?php
+}
 
 // don't close out the php tag!

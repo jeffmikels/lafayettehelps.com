@@ -2,20 +2,18 @@
 
 @section('content')
 
-	<a href="{{ action('UserController@doAdd') }}">[ADD USER]</a>
+	<h1>Current Users</h1>
 
-	<ul class="user_list">
-	@foreach($users as $user)
-		<li class="user_link">
-			{{ $user->permalink() }}&nbsp;
-			@if (isAdmin())
-			<a href="{{ $user->getDeleteLink() }}">[DELETE]</a>
-			@endif
-			@if (isSelf($user) || isAdmin())
-			<a href="{{ $user->getEditLink() }}">[EDIT]</a>
-			@endif
-		</li>
-	@endforeach
-	</ul>
+	<div class="list-group user-list">
+	
+		@foreach($users as $user)
+		<a class="list-group-item" href="{{ action('UserController@showDetail', $user->id); }}">
+			<h2>{{$user->getPublicName()}}</h2>
+			{{$user->showMiniReputation()}}
+		</a>
+		@endforeach
 
+	</div>
+	
+	{{ $users->links() }}
 @stop

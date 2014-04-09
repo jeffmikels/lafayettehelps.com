@@ -1,15 +1,23 @@
 @extends('layout')
 
 @section('content')
+	<?php
+	$gravatar_link = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email))) . ".jpg?s=100";		
+	?>
+	<img class="gravatar thumbnail pull-right" src="{{$gravatar_link}}" />
 	<h2><a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
 	@if ( me()->hasPermissionTo('edit', $user) )
 	<small><a href="{{ $user->getEditLink() }}">[EDIT]</a></small>
 	@endif
+	@if ( me()->hasPermissionTo('delete', $user) )
+	<small><a href="{{ route('userdelete', array('id' => $user->id)) }}" onclick="return doconfirm('Are you sure you want to delete this user?');">[DELETE]</a></small>
+	@endif
 	</h2>
-
+	
 	<h2>Reputation</h2>
 
 	<?php show_reputation($user); ?>
+
 
 	<h2>Details</h2>
 
@@ -43,7 +51,7 @@
 	@if (isOrgAdmin() || isAdmin())
 	<div class="panel panel-warning">
 		<div class="panel-heading">
-			<h2>Organizational Details</h2>
+			<h2>Organizational Connections</h2>
 		</div>
 		<div class="panel-body">
 			<h3>Relationships</h3>
@@ -67,22 +75,6 @@
 		</div>
 	</div>
 	@endif
-
-
-
-	<h2>Active Requests</h2>
-	Past Requests Go Here :: (link) request title, status, deadline, progress
-
-	<h2>Recent History</h2>
-	<p>"History" items go here. A history item looks like this...</p>
-	<ul>
-	<li>"USER" posted a request (link) title
-	<li>"USER" made a pledge
-	<li>"USER" fulfilled a pledge
-	<li>"USER" recommended "OTHER USER"
-	</ul>
-	<h2>Recommendations</h2>
-	most recent recommendations for this user go here
 
 
 	@if (isAdmin())

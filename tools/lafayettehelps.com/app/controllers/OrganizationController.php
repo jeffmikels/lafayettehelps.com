@@ -4,8 +4,9 @@ class OrganizationController extends BaseController
 {
 	public function getIndex()
 	{
-		$orgs = Organization::all();
-   return View::make('default', array('objects' => $orgs, 'class'=>'Organization'));
+		if(isAdmin()) $orgs = Organization::orderby('name')->paginate(30);
+		else $orgs = Organization::orderby('name')->where('status','=','verified')->paginate(30);
+		return View::make('organization.index', array('organizations' => $orgs));
 
 		//return View::make('organization.index')
 	}
@@ -13,7 +14,6 @@ class OrganizationController extends BaseController
 	public function showDetail($id)
 	{
 		if (! $organization = Organization::find($id) ) App::abort(404);
-		if (! Auth::check() ) App::abort(404);
 		if (isAdmin()) return View::make('organization.profile', array('organization' => $organization, 'relationships' => $organization->relationships));
 		else return View::make('organization.profile', array('organization' => $organization));
 	}
@@ -21,12 +21,12 @@ class OrganizationController extends BaseController
 	public function add()
 	{
 		// adding organizations is subject to moderation
-		$organization = new Organization;
+		$organization = new Organization();
 		if ( ! Auth::user()->hasPermissionTo('add',$organization))
 		{
 			Session::put('status','error');
 			Session::put('message', 'You do not have permission to add organizations!');
-			return Redirect::to('not-allowed');
+			return Redirect::route('home');
 		}
 		if (Input::has('_token'))
 		{
@@ -37,7 +37,7 @@ class OrganizationController extends BaseController
 
 	public function create($orgdata)
 	{
-		$org = new Organization;
+		$org = new Organization();
 		return $this->save($org, $orgdata);
 	}
 

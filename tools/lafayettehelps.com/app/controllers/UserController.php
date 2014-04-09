@@ -29,7 +29,8 @@ class UserController extends BaseController
 
 	public function getIndex()
 	{
-			$users = User::all();
+			//$users = User::all();
+			$users = User::orderby('first_name')->where('status', '=', 'verified')->paginate(30);
 			return View::make('user.index', array('users' => $users));
 	}
 
@@ -89,7 +90,7 @@ $confirmation_link";
 		mail($user->email, $subject, $email, $headers);
 	}
 	
-	public function doConfirm($id, $confirmation)
+	public function doConfirm($id, $confirmation_code)
 	{
 		// first, we attempt to find the user id in the database
 		$user = User::find($id);
@@ -98,7 +99,7 @@ $confirmation_link";
 			err('I could not find a user account to associate with this confirmation link.');
 			return Redirect::route('register');
 		}
-		if ($confirmation == hash('sha256',$user->email))
+		if ($confirmation_code == hash('sha256',$user->email))
 		{
 			$user->status = 'verified';
 			$user->save();
@@ -121,19 +122,39 @@ $confirmation_link";
 
 	public function doLogin()
 	{
-		if (Auth::check()) return Redirect::to('user/' . Auth::user()->id);
+		if (Auth::check()) return Redirect::route('userprofile', array('id' => Auth::user()->id));
 		if (Input::has('_token'))
 		{
 			$username = Input::get('username');
 			$salted = saltPassword(Input::get('password'));
-			if (Auth::attempt( array( 'username' => $username, 'password' => $salted, 'status' => 'verified'), true ) )
+			if (Auth::attempt( array( 'username' => $username, 'password' => $salted), true ) )
 			{
-				msg('Login successful. Welcome!');
-				return Redirect::intended('user/' . Auth::user()->id);
+				// authenticated, but let's check for account status
+				$status = Auth::user()->status;
+				if ($status == 'verified')
+				{
+					msg('Login successful. Welcome!');
+					return Redirect::intended('user/' . Auth::user()->id);
+				}
+				elseif ($status == 'unverified')
+				{
+					msg('Login failed. You need to click the link in the confirmation email we sent you.');
+					Auth::logout();
+				}
+				elseif ($status == 'blocked')
+				{
+					msg('Login failed. Your account has been blocked. Check with the site administrators to get your account reactivated.');
+					Auth::logout();
+				}
+				else
+				{
+					msg('Login failed.');
+					Auth::logout();
+				}
 			}
 			else
 			{
-				err('Login Failed. Make sure you have confirmed your email address and are using the right password.');
+				err('Login Failed. Did you forget your password?');
 				return Redirect::route('login')->withInput(Input::except('password'));
 			}
 		}
@@ -154,12 +175,12 @@ $confirmation_link";
 			$user->delete();
 			Session::flash('status', 'success');
 			msg('User Successfully Deleted');
-			return View::make('user.index');
+			return Redirect::route('users');
 		}
 		else
 		{
 			msg('You do not have permissions to delete users');
-			return View::make('home');
+			return Redirect::route('home');
 		}
 	}
 

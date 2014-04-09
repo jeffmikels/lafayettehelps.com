@@ -68,7 +68,9 @@
 	<!-- SCRIPT FILES -->
 	<!-- jquery -->
 	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-
+	<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/pepper-grinder/jquery-ui.css" />
+	
 	<!-- Latest compiled and minified Bootstrap JavaScript -->
 	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
 	<script src="/js/bootstrap.min.js"></script>
@@ -136,6 +138,10 @@
 							@if (Auth::check())
 							<li><a tabindex="-1" href="{{route('addorganization')}}">Submit an Organization</a></li>
 							@endif
+							@if (isAdmin() or isOrgAdmin())
+							<li class="dropdown-header">Relationships</li>
+							<li><a tabindex="-1" href="{{route('relationships')}}">View all relationships</a></li>
+							@endif
 						</ul>
 					</li>
 					@if (! Auth::check())
@@ -191,6 +197,14 @@ $(document).ready(function()
 	$('.date-widget').datepicker();
 	$('*').tooltip();
 });
+
+// CUSTOM JAVASCRIPT CODE
+function doconfirm(prompt)
+{
+	if (typeof(prompt) == 'undefined') prompt = 'Are you sure you want to do that?';
+	return confirm(prompt);
+}
+
 </script>
 <?php
 Session::forget('status');

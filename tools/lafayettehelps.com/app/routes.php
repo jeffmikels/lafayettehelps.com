@@ -14,10 +14,9 @@
 
 Route::get('/test', function()
 {
-	$user = User::find(1);
-	$uc = new UserController();
-	$uc->sendConfirmationEmail($user);
-	dd('hello');
+	$org = Organization::find(2);
+	$org->makeAdmin(1);
+	Redirect::route('organizations');
 });
 
 // HOME AND ADMIN
@@ -29,12 +28,11 @@ Route::get('not-allowed', array('as'=>'not-allowed', function()
 }));
 
 
+// STATIC PAGES
 Route::get('info', array('as'=>'info', function()
 {
 	return View::make('info');
 }));
-
-// ADMIN ROUTES
 
 
 // ACCOUNT ROUTES
@@ -43,13 +41,13 @@ Route::post('register', array('before' => 'csrf', 'uses' => 'UserController@doRe
 Route::get('login', array('as'=>'login', 'uses'=>'UserController@doLogin'));
 Route::post('login', array('before' => 'csrf', 'uses' => 'UserController@doLogin'));
 Route::get('logout', array('as'=>'logout', 'uses'=>'UserController@doLogout'));
+/* PASSWORD RELATED ROUTES ARE BELOW */
 
 
 // USER ROUTES
 Route::get('users', array('as'=>'users', 'uses'=> 'UserController@getIndex'));
 Route::get('user/add', array('as'=>'adduser', 'uses'=>'UserController@doAdd'));
 Route::post('user/add', array('before' => 'csrf', 'uses' => 'UserController@doAdd'));
-
 Route::get('user', array('as'=>'profile', function()
 {
 	if(Auth::check())
@@ -65,8 +63,11 @@ Route::get('user', array('as'=>'profile', function()
 Route::get('user/{id}', array('as'=>'userprofile', 'uses'=>'UserController@showDetail'));
 Route::get('user/{id}/edit', array('as'=>'useredit', 'uses'=>'UserController@doEdit'));
 Route::post('user/{id}/edit', array('before'=>'csrf', 'uses' => 'UserController@doSave'));
-Route::get('user/{id}/delete', array('before'=>'csrf', 'uses' => 'UserController@doDelete'));
-Route::get('user/{id}/confirm/{confirmation}', array('as'=>'userconfirm', 'uses' => 'UserController@doConfirm'));
+Route::get('user/{id}/confirm/{confirmation_code}', array('as'=>'userconfirm', 'uses' => 'UserController@doConfirm'));
+/* USER ADMINISTRATION */
+Route::get('user/{id}/delete', array('as'=>'userdelete', 'uses' => 'UserController@doDelete'));
+Route::get('user/{id}/ban', array('uses' => 'UserController@ban'));
+
 
 // RECOMMENDATIONS
 Route::get('recommendation/{id}', array('as'=>'recommendationdetail', 'uses'=>'RecommendationController@showDetail'));
@@ -79,17 +80,18 @@ Route::get('recommendation/for/user/{user_id}/add', array('as'=>'recommendationa
 Route::post('recommendation/for/user/{user_id}/add', array('before'=>'csrf', 'as'=>'recommendationadd', 'uses'=>'RecommendationController@doAdd'));
 
 
+
 // ORGANIZATION ROUTES
 Route::get('organizations', array('as'=>'organizations', 'uses'=>'OrganizationController@getIndex'));
 Route::get('organization/add', array('as'=>'addorganization', 'uses'=>'OrganizationController@add'));
 Route::post('organization/add', array('before' => 'csrf', 'uses' => 'OrganizationController@add'));
-
 Route::get('organization/{id}', 'OrganizationController@showDetail');
 Route::get('organization/{id}/edit', 'OrganizationController@edit');
 Route::post('organization/{id}/edit', array('before'=>'csrf', 'uses' => 'OrganizationController@edit'));
-Route::get('relationships', function()
+Route::get('relationships', array('as'=>'relationships', function()
 {
 	if (Auth::check())
+	{
 		if (isOrgAdmin() || isAdmin())
 		{
 			$users = User::all();
@@ -101,7 +103,13 @@ Route::get('relationships', function()
 			}
 			return View::make('organization.relationships', array( 'relationships' => $relationship_details ));
 		}
-});
+	}
+	err('You are not allowed to do that.');
+	return Redirect::route('home');
+}));
+// ORGANIZATION ADMIN
+Route::get('organization/{id}/approve', array('uses' => 'OrganizationController@approve'));
+Route::get('organization/{id}/disapprove', array('uses' => 'OrganizationController@disapprove'));
 
 
 // PLEA ROUTES
@@ -130,7 +138,6 @@ Route::get('offers', function()
 });
 Route::get('offer/add', array('as'=>'addoffer', 'uses'=>'OfferController@add'));
 Route::post('offer/add', array('before' => 'csrf', 'uses' => 'OfferController@add'));
-
 Route::get('offer/{id}', 'OfferController@showDetail');
 Route::get('offer/{id}/edit', 'OfferController@edit');
 Route::post('offer/{id}/edit', array('before'=>'csrf', 'uses' => 'OfferController@edit'));
@@ -138,6 +145,10 @@ Route::post('offer/{id}/edit', array('before'=>'csrf', 'uses' => 'OfferControlle
 
 // COMMENTS ROUTES
 Route::post('comment/add', array('before'=>'csrf', 'uses' => 'CommentController@add'));
+
+
+// ADMIN/MODERATION PAGE
+Route::get('admin', function(){return View::make('admin');});
 
 
 // PASSWORD VIEWS
@@ -180,6 +191,63 @@ Route::post('password/reset/{token}', function()
 		return Redirect::route('login');
 	});
 });
+
+// JSON VIEWS
+Route::get('{object_name}/json', array('as' => 'json', function($object_name)
+{
+	switch ($object_name)
+	{
+		case 'users':
+			$object = User::all();
+			break;
+		case 'organizations':
+			$object = Organization::all();
+			break;
+		default:
+			$object = '';
+	}
+	return Response::json($object);
+}));
+Route::get('{object_name}/{id}/json', array('as' => 'json', function($object_name, $id)
+{
+	switch ($object_name)
+	{
+		case 'user':
+			$object = User::find($id);
+			break;
+		case 'organization':
+			$object = Organization::find($id);
+			break;
+		default:
+			$object = '';
+	}
+	return Response::json($object);
+}));
+
+Route::post('{object_name}/search/json', array('as' => 'search', function($object_name)
+{
+	if (! Input::has('query')) return Response::json(Array());
+	$query = Input::get('query', '');
+	$query = '%' . str_replace(' ','%', $query) . '%';
+	switch ($object_name)
+	{
+		case 'users':
+			$results = User::where('email','LIKE',$query)->orWhere('first_name','LIKE',$query)->get()->toArray();
+			foreach ($results as $key => $user)
+			{
+				$full_name = $user['first_name'] . ' ' . substr($user['last_name'],0,1);
+				$results[$key]['full_name'] = $full_name;
+				unset($results[$key]['last_name']);
+			}
+			break;
+		case 'organizations':
+			$results = Organization::where('name','LIKE',$query)->get();
+			break;
+		default:
+			$results = Array();
+	}
+	return Response::json($results);
+}));
 
 
 // CREATE FILTERS TO DETERMINE WHAT AUTHENTICATION IS NEEDED

@@ -10,18 +10,24 @@ class Organization extends Eloquent
 	protected $table = 'organizations';
 	protected $properties = Array('id','name','email','phone','address','city','state','zip','status','verified_by');
 	protected $public_properties = Array('name','email','phone','address','city','state','zip');
-
+	protected $status_options = Array('unverified' => 'Unverified', 'verified' => 'Verified');
 	/**
 	 * The attributes excluded from the model's JSON form.
 	 *
 	 * @var array
 	 */
 	protected $hidden = array('');
+	protected $softDelete = true;
 
 	public function relationships()
 	{
 		//return $this->hasMany('Relationship');
 		return $this->belongsToMany('User','relationships','organization_id','user_id')->withPivot('relationship_type');
+	}
+
+	public function admins()
+	{
+		return $this->relationships()->where('relationship_type', 'admin')->get();
 	}
 
 	public function getOwnerId()
@@ -48,6 +54,11 @@ class Organization extends Eloquent
 	public function getPublicProperties()
 	{
 		return $this->public_properties;
+	}
+	
+	public function getStatusOptions()
+	{
+		return $this->status_options;
 	}
 	public function validateContent($prop, $content)
 	{
@@ -102,7 +113,17 @@ class Organization extends Eloquent
 
 	public function makeAdmin($user_id)
 	{
-
+		return $this->relationships()->attach($user_id, array('relationship_type'=>'admin'));
+	}
+	
+	public function makeMember($user_id)
+	{
+		return $this->relationships()->attach($user_id, array('relationship_type'=>'member'));		
+	}
+	
+	public function removeRelationship($user_id)
+	{
+		return $this->relationships()->detach($user_id);
 	}
 
 	public function getDetailLink()
