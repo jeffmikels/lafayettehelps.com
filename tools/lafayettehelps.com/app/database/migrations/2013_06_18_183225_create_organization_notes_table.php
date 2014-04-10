@@ -15,9 +15,8 @@ class CreateOrganizationNotesTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('contributed_by'); // user id
-			$table->integer('on_behalf_of'); // organization id
-			$table->string('noted_type'); // users, pleas, offers
-			$table->integer('noted_id');
+			$table->integer('organization_id'); // organization id
+			$table->integer('user_id');
 			$table->text('body');
 			$table->boolean('red_flag')->default(0);
 			$table->timestamps();

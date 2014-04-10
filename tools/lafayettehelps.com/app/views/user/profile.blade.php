@@ -25,30 +25,39 @@
 		<?php show_reputation($user); ?>
 	</div>
 
-	<h2>Details</h2>
-
-	<div class="contact">
-	Contact Form Goes Here
+	<h2>Contact</h2>
+	<div class="contact-form">
+		{{Form::open(array('route'=>'contact', 'role'=>'form'))}}
+		{{Form::hidden('email', $user->email)}}
+		<div class="form-group">
+			{{Form::label('content', 'Email Content')}}
+			{{Form::textarea('content', NULL, array('class'=>'form-control'))}}			
+		</div>
+		<div class="form-group">
+			{{Form::submit('Send Email', array('class'=>'btn btn-primary form-control'))}}
+		</div>
+		{{Form::close()}}
 	</div>
-
-	<div class="phone">
-	Phone :: {{ $user->phone }}
-	</div>
-
-	<div class="city">
-	City :: {{ $user->city }}
+	
+	<div class="panel panel-info">
+		<div class="panel-heading">Contact Details</div>
+		<div class="panel-body">
+			<table class="table">
+				<tr><td><strong>Phone:</strong></td><td>{{$user->phone}}</td></tr>
+				<tr><td><strong>City:</strong></td><td>{{$user->city}}</td></tr>
+			</table>
+		</div>
 	</div>
 
 	@if (isAdmin())
-	<h2>Administrative Details<br />
-	<small>You have been granted administrative access to this site. Please use your power with caution.</small>
-	</h2>
-	<div class="admin_details">
-		<div class="status">
-			Status :: {{$user->status}}
-		</div>
-		<div class="role">
-			Role :: {{$user->role}}
+	<div class="panel panel-info">
+		<div class="panel-heading">For Administrators</div>
+		<div class="panel-body">
+			<small>You have been granted administrative access to this site. Please use your power with caution.</small>
+			<table class="table">
+				<tr><td><strong>Status</strong></td><td>{{$user->status}}</td></tr>
+				<tr><td><strong>Role</strong></td><td>{{$user->role}}</td></tr>
+			</table>
 		</div>
 	</div>
 	@endif
@@ -57,7 +66,7 @@
 	@if (isOrgAdmin() || isAdmin())
 	<div class="panel panel-warning">
 		<div class="panel-heading">
-			<h2>Organizational Connections</h2>
+			<h3>Organizational Connections</h3>
 		</div>
 		<div class="panel-body">
 			<h3>Relationships</h3>
@@ -76,7 +85,16 @@
 			</table>
 			<h3>Notes</h3>
 			<div class="notes">
-				TODO: Organizational notes go here.
+				@foreach ($user->notes as $note)
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						Posted by {{$note->creator->getName()}} for {{$note->organization->name}}
+					</div>
+					<div class="panel-body">
+						{{$note->body}}
+					</div>
+				</div>
+				@endforeach
 			</div>
 		</div>
 	</div>

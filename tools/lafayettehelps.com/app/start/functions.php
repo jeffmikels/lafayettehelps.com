@@ -59,9 +59,9 @@ function isAdmin($user = False)
 
 function isOrgAdmin($user = False, $org=NULL)
 {
-	if ($user) return ($user->isOrgAdmin($org));
-	if (! Auth::check() ) return False;
-	return (Auth::user()->isOrgAdmin($org));
+	// if we don't specify a user, then we set $user to me()
+	if(! $user ) $user = me();
+	return $user->isOrgAdmin($org);
 }
 
 // function hasPermissionTo($action, $object, $user = False)

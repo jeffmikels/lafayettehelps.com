@@ -102,7 +102,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	{
 		return $this->organizations()->where('relationship_type', 'admin')->get();
 	}
-
+	
+	public function notes()
+	{
+		return $this->hasMany('OrganizationNote');
+	}
+	
 	public function getRoleOptions()
 	{
 		return $this->role_options;
@@ -319,6 +324,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		*/
 		$orgs = $this->administers()->toArray();
 		if ($org === NULL && count($orgs) > 0) return True;
+		
+		// check to see if this user is an admin of this specific organization
 		foreach ($orgs as $o)
 		{
 			if ($o['id'] === $org['id']) return True;

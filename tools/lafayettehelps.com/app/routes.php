@@ -14,10 +14,15 @@
 
 Route::get('/test', function()
 {
-	$org = Organization::find(1);
-	Header('Content-type: text/plain');
-	var_dump(User::find(3)->isOrgAdmin($org));
-	dd();
+	$user = me();
+	// $note = new OrganizationNote();
+	// $note->organization_id = 1;
+	// $note->body = 'this is a test note';
+	//$user->notes()->save($note);
+	return Response::json($user->notes);
+	// Header('Content-type: text/plain');
+	// var_dump(User::find(3)->isOrgAdmin($org));
+	// dd();
 });
 
 // HOME AND ADMIN
@@ -33,6 +38,37 @@ Route::get('not-allowed', array('as'=>'not-allowed', function()
 Route::get('info', array('as'=>'info', function()
 {
 	return View::make('info');
+}));
+
+Route::post('contact', array('as'=>'contact', 'before'=>'csrf', function()
+{
+	if(! Auth::check())
+	{
+		err('You need to be logged in to do that.');
+		return Redirect::route('register');
+	}
+	$email = Input::get('email','');
+	$from = me()->email;
+	$content = Input::get('content','');
+	$data = array('content'=>$content, 'user'=>me());
+	if (!$email or !$content)
+	{
+		if (!$email) err('I couldn\'t find an email address on file for that user/organization.');
+		if (!$content) err('You didn\'t enter anything in the message field.');
+		return Redirect::to(URL::previous());
+	}
+	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($email, $from)
+	{
+		$message->to($email)->from('webmaster@lafayettehelps.com')->replyTo($from)->subject('[lafayettehelps.com] a user has contacted you');
+	});
+	msg('Message Sent Successfully');
+	return Redirect::to(URL::previous());
+}));
+
+
+Route::get('report/{id}/{by}', array('as'=>'report', function($id, $by){
+	msg('user ' . $id . ' reported as abusive by ' . $by);
+	return Redirect::route('home');
 }));
 
 

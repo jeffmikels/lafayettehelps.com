@@ -13,49 +13,54 @@
 		</h2>
 	</div>
 
-	<h2>Details</h2>
+	<h2>Contact</h2>
 
-	<div class="contact">
-	Contact Form Goes Here
+	<div class="contact-form">
+		{{Form::open(array('route'=>'contact', 'role'=>'form'))}}
+		{{Form::hidden('email', $organization->email)}}
+		<div class="form-group">
+			{{Form::label('content', 'Email Content')}}
+			{{Form::textarea('content', NULL, array('class'=>'form-control'))}}			
+		</div>
+		<div class="form-group">
+			{{Form::submit('Send Email', array('class'=>'btn btn-primary form-control'))}}
+		</div>
+		{{Form::close()}}
+	</div>
+	
+	<div class="panel panel-info">
+		<div class="panel-heading">Organization Details</div>
+		<div class="panel-body">
+			<table class="table">
+				@foreach ( $organization->getPublicProperties() as $prop)
+				<tr><td><strong>{{$prop}}</strong></td><td>{{$organization->$prop}}</td></tr>
+				@endforeach
+			</table>
+		</div>
 	</div>
 
-	@foreach ( $organization->getPublicProperties() as $prop)
-	<div class="{{$prop}}">{{$prop}} :: {{$organization->$prop}}</div>
-	@endforeach
-
-	@if (isAdmin())
-	<h2>Administrative Details</h2>
+	@if (me()->isOrgAdmin($organization) || isAdmin())
+	<h2>For Administrators</h2>
 	<small>You have been granted administrative access to this site. Please use your power with caution.</small>
-	<div class="admin_details">
+	<div class="panel panel-info">
+		<div class="panel-heading">Relationships</div>
+		<div class="panel-body">
+			<div class="admin_details">
+				<table class="table">
+					<tr>
+						<th>Contact</th><th>Relationship</th>
+					</tr>
 
-		<h3>Organizational Relationships</h3>
-		<!-- NEED A SORTABLE TABLE FOR RELATIONSHIPS -->
-		<table>
-			<tr>
-				<th>Contact</th><th>Relationship</th>
-			</tr>
+					@foreach ($relationships as $relationship)
+					<tr>
+						<td><a href="{{ action('UserController@showDetail', $relationship->id) }}">{{ $relationship->first_name }} {{ $relationship->last_name }}</a></td>
+						<td>{{ $relationship->pivot->relationship_type }}</td>
+					</tr>
+					@endforeach
 
-			@foreach ($relationships as $relationship)
-			<tr>
-				<td><a href="{{ action('UserController@showDetail', $relationship->id) }}">{{ $relationship->first_name }} {{ $relationship->last_name }}</a></td>
-				<td>{{ $relationship->pivot->relationship_type }}</td>
-			</tr>
-			@endforeach
-
-		</table>
-	</div>
-	@endif
-
-
-	@if (isOrgAdmin() || isAdmin())
-	<h2>Organizational Details</h2>
-	<h3>Relationships</h3>
-	<div class="relationships">
-		TODO: Organizational relationships go here.
-	</div>
-	<h3>Notes</h3>
-	<div class="notes">
-		TODO: Organizational notes go here.
+				</table>
+			</div>
+		</div>
 	</div>
 	@endif
 
