@@ -92,7 +92,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
 
-
+	public function doHitReputation($decrement = 10)
+	{
+		$this->reputation = max($this->reputation - $decrement, 0);
+		$this->save();
+	}
+	
+	public function doHelpReputation($increment = 25)
+	{
+		$this->reputation = min($this->reputation + $increment, 100);
+		$this->save();
+	}
+	
 	public function organizations()
 	{
 		return $this->belongsToMany('Organization','relationships','user_id','organization_id')->withPivot('relationship_type');
@@ -106,6 +117,33 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	public function notes()
 	{
 		return $this->hasMany('OrganizationNote');
+	}
+	
+	public function pleas()
+	{
+		return $this->hasMany('Plea');
+	}
+	
+	public function activePleas()
+	{
+		return $this->pleas()->where('deadline', '>', time())->get();
+	}
+	
+	public function pledges()
+	{
+		return $this->hasMany('Pledge');
+	}
+	public function uncompletedPledges()
+	{
+		return $this->pledges()->where('status','uncompleted')->get();
+	}
+	public function recommendationsReceived()
+	{
+		return $this->hasMany('Recommendation','contributed_for','id');
+	}
+	public function recommendationsGiven()
+	{
+		return $this->hasMany('Recommendation','contributed_by','id');
 	}
 	
 	public function getRoleOptions()

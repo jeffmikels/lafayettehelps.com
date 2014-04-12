@@ -2,7 +2,7 @@
 | lafayettehelps.com
 ====================================================
 
-{{$user->getName()}} has contacted you.
+{{$user->getPublicName()}} has contacted you.
 
 Their Message:
 

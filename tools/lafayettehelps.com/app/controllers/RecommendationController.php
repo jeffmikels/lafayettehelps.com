@@ -5,8 +5,27 @@ class RecommendationController extends BaseController
 	public function showDetail($id)
 	{}
 
+	public function showForm($user_id)
+	{
+		if (! me()->hasPermissionTo('add','Recommendation'))
+		{
+			err('You don\'t have permission to leave a recommendation for that user.');
+			return Redirect::to(URL::previous());
+		}
+		$user = User::find($user_id);
+		return View::make('recommend', array('user' => $user) );
+	}
+
 	public function doAdd($user_id)
-	{}
+	{
+		if (! me()->hasPermissionTo('add','Recommendation'))
+		{
+			err('You don\'t have permission to leave a recommendation for that user.');
+			return Redirect::to(URL::previous());
+		}
+		$recommendation = new Recommendation;
+		return $recommendation->validateAndUpdateFromArray(Input::all());
+	}
 
 	public function doEdit($id)
 	{}

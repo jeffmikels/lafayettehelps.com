@@ -10,33 +10,25 @@
 
 
 	<div class="well">
+		@if (isAdmin() || isOrgAdmin())
 		<img class="gravatar thumbnail pull-right" src="{{$gravatar_link}}" />
-		<h2><a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
-		@if ( me()->hasPermissionTo('edit', $user) )
-		<small><a class="btn btn-info" href="{{ $user->getEditLink() }}">EDIT</a></small>
 		@endif
-		@if ( me()->hasPermissionTo('delete', $user) )
-		<small><a class="btn btn-info" href="{{ route('userdelete', array('id' => $user->id)) }}" onclick="return doconfirm('Are you sure you want to delete this user?');">DELETE</a></small>
-		@endif
+		<h2>
+			<a href="{{ $user->getDetailLink() }}">{{ $user->getName() }}</a>
+			@if ( me()->hasPermissionTo('edit', $user) )
+			<small><a class="btn btn-info" href="{{ $user->getEditLink() }}">EDIT</a></small>
+			@endif
+			@if ( me()->hasPermissionTo('delete', $user) )
+			<small><a class="btn btn-info" href="{{ route('userdelete', array('id' => $user->id)) }}" onclick="return doconfirm('Are you sure you want to delete this user?');">DELETE</a></small>
+			@endif
+			<small><a class="btn btn-info" href="{{route('contact', array('object_type' => 'user', 'id' => $user->id ))}}">Contact {{$user->getName()}}</a></small>
+			<small><a class="btn btn-info" href="{{route('recommendationadd', array('user_id' => $user->id )) }}">Write Recommendation</a></small>
+			
 		</h2>
 
 		<h2>Reputation</h2>
 
 		<?php show_reputation($user); ?>
-	</div>
-
-	<h2>Contact</h2>
-	<div class="contact-form">
-		{{Form::open(array('route'=>'contact', 'role'=>'form'))}}
-		{{Form::hidden('email', $user->email)}}
-		<div class="form-group">
-			{{Form::label('content', 'Email Content')}}
-			{{Form::textarea('content', NULL, array('class'=>'form-control'))}}			
-		</div>
-		<div class="form-group">
-			{{Form::submit('Send Email', array('class'=>'btn btn-primary form-control'))}}
-		</div>
-		{{Form::close()}}
 	</div>
 	
 	<div class="panel panel-info">
@@ -45,7 +37,7 @@
 			<table class="table">
 				<tr><td><strong>Phone:</strong></td><td>{{$user->phone}}</td></tr>
 				<tr><td><strong>City:</strong></td><td>{{$user->city}}</td></tr>
-			</table>
+			</table>			
 		</div>
 	</div>
 
@@ -66,7 +58,7 @@
 	@if (isOrgAdmin() || isAdmin())
 	<div class="panel panel-warning">
 		<div class="panel-heading">
-			<h3>Organizational Connections</h3>
+			Organizational Connections
 		</div>
 		<div class="panel-body">
 			<h3>Relationships</h3>
@@ -100,26 +92,80 @@
 	</div>
 	@endif
 
-
+<?php /*
 	@if (isAdmin())
 	<h3>User Debug</h3>
 	<?php debug($user['attributes']); ?>
 	@endif
-
+*/ ?>
 
 
 	<div class="panel panel-primary">
 		<div class="panel-heading">
-		<h3>Active Requests</h3>
+			Active Requests
 		</div>
 		<div class="panel-body">
-		<p>Past Requests Go Here :: (link) request title, status, deadline, progress</p>
+			<div class="list-group plea-list">
+
+			@foreach ($user->activePleas() as $plea)
+
+				<a class="list-group-item" href="{{ action('PleaController@showDetail', $plea->id) }}">
+					<h2>{{ $plea->summary }}</h2>
+					<div class="meta">
+						<span class="meta-item date">{{$plea->updated_at->toDayDateTimeString()}}</span>
+						<span class="meta-item author">{{$plea->author->getName()}}<?php show_mini_reputation($plea->author); ?></span>
+						<span class="meta-item money">
+							Money Requested:
+							@if (floatval($plea->dollars) > 0)
+								${{ floatval($plea->dollars) }}
+							@else
+								None
+							@endif
+						</span>
+						<span class="meta-item pledged">
+							Money Pledged: ${{$plea->totalPledged()}}
+						</span>
+						@if ($plea->deadline)
+							<span class="meta-item deadline">
+							Deadline: {{$plea->deadline}}
+							</span>
+						@endif
+					</div>
+				</a>
+
+			@endforeach
+			</div>
 		</div>
 	</div>
 
 	<div class="panel panel-primary">
 		<div class="panel-heading">
-			<h3>Recent History</h3>
+			Uncompleted Pledges
+		</div>
+		<div class="panel-body">
+			<div class="list-group plea-list">
+
+			@foreach ($user->uncompletedPledges() as $pledge)
+
+				<a class="list-group-item" href="{{ action('PleaController@showDetail', $pledge->plea_id) }}">
+					<h2>{{$pledge->plea->summary}}</h2>
+					@if ($pledge->dollars > 0)
+						<p><strong>Dollars:</strong> {{ $pledge->dollars }}</p>
+					@endif
+					@if ($pledge->alternatives != '')
+						<p><strong>Alternatives:</strong> {{ $pledge->alternatives }}</p>
+					@endif
+				</a>
+
+			@endforeach
+			</div>
+		</div>
+	</div>
+
+
+	<!-- <div class="panel panel-primary">
+		<div class="panel-heading">
+			Recent History
 		</div>
 		<div class="panel-body">
 			<ul>
@@ -129,14 +175,32 @@
 			<li>"USER" recommended "OTHER USER"
 			</ul>
 		</div>
-	</div>
+	</div> -->
 
 	<div class="panel panel-primary">
 		<div class="panel-heading">
-			<h3>Recommendations</h3>
+			Recommendations Received
 		</div>
 		<div class="panel-body">
-			most recent recommendations for this user go here
+			@foreach ($user->recommendationsReceived as $rec)
+			<div class="well">
+				<p>{{$rec->body}}</p>
+				contributed by {{$rec->contributedBy->permalink()}}
+			</div>
+			@endforeach
+		</div>
+	</div>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			Recommendations Given
+		</div>
+		<div class="panel-body">
+			@foreach ($user->recommendationsGiven as $rec)
+			<div class="well">
+				<p>{{$rec->body}}</p>
+				contributed by {{$rec->contributedFor->permalink()}}
+			</div>
+			@endforeach
 		</div>
 	</div>
 

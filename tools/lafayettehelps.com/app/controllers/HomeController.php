@@ -17,16 +17,18 @@ class HomeController extends BaseController {
 
 	public function showWelcome()
 	{
-		return View::make('hello');
+		$urgent = Plea::take(4)->orderBy('deadline', 'DESC')->get();
+		$newest = Plea::take(4)->orderBy('created_at', 'DESC')->get();
+		return View::make('hello', array('urgent' => $urgent, 'newest' => $newest));
 	}
 
 	public function showAdmin()
 	{
-		// Admin page should show links to 
+		// Admin page should show links to
 		// Manage users
 		// Manage organizations
 		// Manage Requests
 		return View::make('admin');
 	}
-	
+
 }

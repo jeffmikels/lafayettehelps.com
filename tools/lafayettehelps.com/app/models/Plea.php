@@ -8,7 +8,12 @@ class Plea extends Eloquent
 		'status' => 'refuse',
 		'verified_by' => 'refuse'
 	);
-
+	
+	public function __construct()
+	{
+		$this->user_id = me()->id;
+	}
+	
 	public function getProperties()
 	{
 		return $this->properties;
@@ -26,7 +31,6 @@ class Plea extends Eloquent
 	public function author()
 	{
 		return $this->belongsTo('User', 'user_id');
-		//return $this->belongsToMany('User','relationships','organization_id','user_id')->withPivot('relationship_type');
 	}
 
 	public function comments()
@@ -39,6 +43,25 @@ class Plea extends Eloquent
 		return $this->hasMany('Pledge');
 	}
 
+	public function monetaryPledges()
+	{
+		return $this->pledges()->where('dollars','>',0)->orderBy('created_at','ASC')->get();
+	}
+	
+	public function alternativePledges()
+	{
+		return $this->pledges()->where('alternatives', '<>', '')->orderBy('created_at', 'ASC')->get();
+	}
+	
+	public function totalPledged()
+	{
+		$total = 0;
+		foreach ($this->monetaryPledges() as $pledge)
+		{
+			$total += $pledge->dollars;
+		}
+		return $total;
+	}
 
 
 	public function validateContent($prop, $content)
@@ -52,7 +75,6 @@ class Plea extends Eloquent
 		if (isset($this->validations[$prop])) $pattern = $this->validations[$prop];
 		if ($pattern == 'refuse') return false;
 		$content_matches = preg_match($pattern, $content);
-
 		return ($property_exists && $content_matches);
 	}
 
@@ -61,9 +83,15 @@ class Plea extends Eloquent
 	{
 		foreach ($arr as $prop=>$value)
 		{
+			if (! in_array($prop, $this->properties))
+			{
+				unset($arr[$prop]);
+				continue;
+			}
 			if ($value && (! $this->validateContent($prop, $value)))
 			{
-				//debug($prop . " did not validate");
+				debug($prop . " did not validate");
+				err($prop . " did not validate");
 				return False;
 			}
 		}

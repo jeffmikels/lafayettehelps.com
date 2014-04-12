@@ -9,11 +9,6 @@ class PleaController extends BaseController
 		return View::make('plea.detail', array('plea' => $plea, 'author' => $plea->author));
 	}
 
-	public function showPleasByUser($user_id)
-	{
-		return not_implemented();
-	}
-
 	public function add()
 	{
 		// adding pleas is subject to moderation
@@ -27,35 +22,46 @@ class PleaController extends BaseController
 		{
 			Session::put('status','error');
 			Session::put('message', 'You do not have permission to add pleas!');
-			return Redirect::to('not-allowed');
+			return Redirect::to(URL::previous());
 		}
 		if (Input::has('_token'))
 		{
-			return $this->create(array_except(Input::all(),'_token'));
+			return $this->create(Input::except('_token'));
 		}
 		return View::make('plea.edit', array('plea' => $plea));
 	}
 
 	public function create($pleadata)
 	{
-		$org = new Plea;
-		return $this->save($org, $pleadata);
+		// first, we create the plea object
+		$plea = new Plea;
+		
+		// now we attempt to save it to the database with submitted data
+		return $this->save($plea, $pleadata, $update_reputation = True);
 	}
 
-	public function save($plea, $pleadata)
+	public function save($plea, $pleadata, $update_reputation = False)
 	{
 		if($plea->validateAndUpdateFromArray($pleadata))
 		{
+			if ($update_reputation)
+			{
+				$plea->author->doHitReputation();
+			}
 			Session::put('status','success');
 			Session::put('message', 'Saved!');
-			return Redirect::to('plea/'. $plea->id);
+			return Redirect::route('pleadetail', array('id' => $plea->id));
 		}
 		else
 		{
+			err('entered data did not validate');
 			Session::put('status','error');
 			Session::put('message','entered data did not validate');
 			Input::flash();
-			return Redirect::to('plea/'. $plea->id . '/edit')->withInput();
+			if ($plea->id)
+				return Redirect::route('pleaedit', array('id' => $plea->id))->withInput();
+			else
+				return Redirect::route('pleaadd')->withInput();
 		}
 	}
 

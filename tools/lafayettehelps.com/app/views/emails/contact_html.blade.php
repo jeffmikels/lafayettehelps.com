@@ -1,5 +1,5 @@
 <h2>lafayettehelps.com</h2>
-<p><b>{{$user->getName()}}</b> has contacted you.</p>
+<p><b>{{$user->getPublicName()}}</b> has contacted you.</p>
 
 <h3>Their Message:</h3>
 {{$content}}

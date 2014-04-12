@@ -12,7 +12,7 @@
 <p>Here are the things you need to know about using this site.</p>
 </div>
 
-<div class="container well well-lg">
+<div class="well well-lg">
 <h2 id="purpose">Purpose</h2>
 
 <p><strong><em>We exist to pair people in need with people who want to help and thereby build healthy relationships and help solve the underlying causes of poverty.</em></strong></p>

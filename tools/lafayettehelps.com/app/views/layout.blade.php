@@ -10,10 +10,14 @@
 	<!-- BOOTSTRAP RESOURCES -->
 	<!-- Latest compiled and minified CSS -->
 	<!--<link rel="stylesheet" href="/bootstrap-3.0.3/css/bootstrap.min.css">-->
-	<link rel="stylesheet" href="/css/flatly.css">
+	<link rel="stylesheet" href="/css/bootstrap_simplex.css">
 
 	<!-- BOOTSTRAP DATEPICKER -->
 	<link href="/css/datepicker.css" rel="stylesheet">
+
+	<!-- WYSIWYG CSS -->
+	<link rel="stylesheet" type="text/css" href="/bootstrap-wysihtml5/bootstrap-wysihtml5.css"></link>
+
 
 	<!-- TABLESORTER -->
 	<link type="text/css" rel="stylesheet" href="/tablesorter/css/theme.default.css" media="all" />
@@ -33,11 +37,13 @@
 		padding-top:81px;
 	}
 
+	.well {font-size:1em;}
+
 	/* BODY BACKGROUND */
 	body
 	{
-		background-color: #b6d8ed;
 		/*
+		background-color: #b6d8ed;
 		background-image:url(images/wave.jpg);
 		background-repeat:no-repeat;
 		background-position:fixed;
@@ -50,7 +56,7 @@
 	}
 	#content {font-weight:300;}
 
-	h1, h2, h3, h4, h5, h6 {font-weight:700; font-family: McLaren; letter-spacing: -2px;}
+	/*h1, h2, h3, h4, h5, h6 {font-weight:700; font-family: McLaren; letter-spacing: -2px;}*/
 	.jumbotron h1 {font-weight:700;}
 
 	/*a {text-decoration:none; display: inline-block;}*/
@@ -65,18 +71,24 @@
 
 	</style>
 
+
+
 	<!-- SCRIPT FILES -->
 	<!-- jquery -->
 	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 	<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/pepper-grinder/jquery-ui.css" />
-	
+
 	<!-- Latest compiled and minified Bootstrap JavaScript -->
 	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
 	<script src="/js/bootstrap.min.js"></script>
 
 	<!-- BOOTSTRAP DATEPICKER -->
 	<script src="/js/bootstrap-datepicker.js"></script>
+
+	<!-- WYSIHTML5 SCRIPT -->
+	<script type="text/javascript" src="/bootstrap-wysihtml5/wysihtml5-0.3.0.js"></script>
+	<script type="text/javascript" src="/bootstrap-wysihtml5/bootstrap-wysihtml5.js"></script>
 
 	<!-- TABLESORTER -->
 	<script type="text/javascript" src="/tablesorter/js/jquery.tablesorter.js"></script>
@@ -108,7 +120,7 @@
 							<li><a tabindex="-1" href="../cosmo/">Requests I Posted</a></li>
 							<li class="divider"></li>
 							-->
-							<li><a tabindex="-1" href="{{route('addplea')}}">Submit New Request</a></li>
+							<li><a tabindex="-1" href="{{route('pleaadd')}}">Submit New Request</a></li>
 						</ul>
 					</li>
 					<!-- WE ARE DISABLING THE "OFFERS" FUNCTIONALITY -->
@@ -154,6 +166,7 @@
 						<ul class="dropdown-menu" aria-labelledby="account">
 							<li class="dropdown-header">My Account</li>
 							<li><a tabindex="-1" href="{{route('profile')}}">My Dashboard</a></li>
+							<li><a tabindex="-1" href="{{route('profile')}}">My Profile</a></li>
 							<li><a tabindex="-1" href="{{route('pleasbyuser', array('user_id' => me()->id))}}">My Requests</a></li>
 							<li><a tabindex="-1" href="{{route('pledgesbyuser', array('user_id' => me()->id))}}">My Pledges</a></li>
 							<li class="divider"></li>
@@ -196,6 +209,7 @@ $(document).ready(function()
 {
 	$('.date-widget').datepicker();
 	$('*').tooltip();
+	$('.wysiwyg').wysihtml5();
 });
 
 // CUSTOM JAVASCRIPT CODE

@@ -8,8 +8,8 @@
 
 	@foreach ($pleas as $plea)
 
-		<div class="list-group-item">
-			<a href="{{ action('PleaController@showDetail', $plea->id) }}"><h2>{{ $plea->summary }}</h2></a>
+		<a class="list-group-item" href="{{ action('PleaController@showDetail', $plea->id) }}">
+			<h2>{{ $plea->summary }}</h2>
 			<div class="meta">
 				<span class="meta-item date">{{$plea->updated_at->toDayDateTimeString()}}</span>
 				<span class="meta-item author">{{$plea->author->getName()}}<?php show_mini_reputation($plea->author); ?></span>
@@ -21,16 +21,20 @@
 						None
 					@endif
 				</span>
+				<span class="meta-item pledged">
+					Money Pledged: ${{$plea->totalPledged()}}
+				</span>
 				@if ($plea->deadline)
 					<span class="meta-item deadline">
 					Deadline: {{$plea->deadline}}
 					</span>
 				@endif
 			</div>
-		</div>
+		</a>
 
 	@endforeach
-
+	</div>
+	
 	{{ $pleas->links() }}
 
 

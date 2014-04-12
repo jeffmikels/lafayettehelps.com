@@ -15,7 +15,7 @@ class CreatePledgesTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('user_id'); // user id
-			$table->integer('request_id'); // request id
+			$table->integer('plea_id'); // request id
 			$table->float('dollars')->default(0);
 			$table->string('alternatives')->default('');
 			$table->string('status')->default('uncompleted'); // uncompleted, completed

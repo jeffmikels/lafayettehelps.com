@@ -51,14 +51,19 @@
 				<div class="explanation">This is where you write down all the details of your need.</div>
 			</div>
 			<div class="col-sm-9">
-				{{ Form::textarea('details',NULL,array('class' => 'form-control')) }}
+				<div class="well">
+				{{ Form::textarea('details',NULL,array('class' => 'form-control wysiwyg')) }}
+				</div>
 			</div>
 		</div>
 
 		<div class="dollars form-group">
 			{{ Form::label('dollars','Dollars Requested', array('class' => 'col-sm-3 control-label')) }}
 			<div class="col-sm-9">
-				{{ Form::text('dollars',NULL,array('class' => 'form-control')) }}
+				<div class="input-group">
+					<span class="input-group-addon">$</span>
+					{{ Form::text('dollars',NULL,array('class' => 'form-control')) }}
+				</div>
 			</div>
 		</div>
 

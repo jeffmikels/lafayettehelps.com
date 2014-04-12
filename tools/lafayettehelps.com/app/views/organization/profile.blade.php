@@ -10,22 +10,8 @@
 		@if ( me()->hasPermissionTo('edit', $organization) )
 		<small><a class="btn btn-info" href="{{ $organization->getEditLink() }}">EDIT</a></small>
 		@endif
+		<small><a class="btn btn-info" href="{{route('contact', array('object_type' => 'organization', 'id' => $organization->id ))}}">Contact {{$organization->name}}</a></small>
 		</h2>
-	</div>
-
-	<h2>Contact</h2>
-
-	<div class="contact-form">
-		{{Form::open(array('route'=>'contact', 'role'=>'form'))}}
-		{{Form::hidden('email', $organization->email)}}
-		<div class="form-group">
-			{{Form::label('content', 'Email Content')}}
-			{{Form::textarea('content', NULL, array('class'=>'form-control'))}}			
-		</div>
-		<div class="form-group">
-			{{Form::submit('Send Email', array('class'=>'btn btn-primary form-control'))}}
-		</div>
-		{{Form::close()}}
 	</div>
 	
 	<div class="panel panel-info">

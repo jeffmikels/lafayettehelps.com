@@ -14,12 +14,12 @@
 
 Route::get('/test', function()
 {
-	$user = me();
+	$user = User::find(1);
 	// $note = new OrganizationNote();
 	// $note->organization_id = 1;
 	// $note->body = 'this is a test note';
 	//$user->notes()->save($note);
-	return Response::json($user->notes);
+	return Response::json($user->recommendationsReceived);
 	// Header('Content-type: text/plain');
 	// var_dump(User::find(3)->isOrgAdmin($org));
 	// dd();
@@ -40,29 +40,72 @@ Route::get('info', array('as'=>'info', function()
 	return View::make('info');
 }));
 
-Route::post('contact', array('as'=>'contact', 'before'=>'csrf', function()
+
+Route::get('{object_type}/{id}/contact', array('as'=>'contact', function($object_type, $id)
+{
+	switch ($object_type)
+	{
+		case 'user':
+			$object = User::find($id);
+			$object->name = $object->getName();
+			break;
+		case 'organization':
+			$object = Organization::find($id);
+			break;
+		default:
+			err('I couldn\'t figure out what you were trying to do.');
+			return Redirect::route('home');
+	}
+	return View::make('contact', array('object'=>$object, 'object_type'=>$object_type));
+	
+}));
+
+Route::post('{object_type}/{id}/contact', array('as'=>'sendmail', 'before'=>'csrf', function($object_type, $id)
 {
 	if(! Auth::check())
 	{
 		err('You need to be logged in to do that.');
 		return Redirect::route('register');
 	}
-	$email = Input::get('email','');
-	$from = me()->email;
+	switch ($object_type)
+	{
+		case 'user':
+			$object = User::find($id);
+			$object->name = $object->getName();
+			break;
+		case 'organization':
+			$object = Organization::find($id);
+			break;
+		default:
+			err('I couldn\'t figure out what you were trying to do.');
+			return Redirect::route('home');
+	}
+	
+	$email = $object->email;
+	$sender = me()->getPublicName();
+	$from = array(me()->email, $sender);
 	$content = Input::get('content','');
+	$subject = sprintf('[%s via lafayettehelps.com]: %s', $sender, Input::get('subject',''));
 	$data = array('content'=>$content, 'user'=>me());
 	if (!$email or !$content)
 	{
-		if (!$email) err('I couldn\'t find an email address on file for that user/organization.');
+		if (!$email) err('I couldn\'t find an email address on file for that ' . $object_type . '.');
 		if (!$content) err('You didn\'t enter anything in the message field.');
 		return Redirect::to(URL::previous());
 	}
-	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($email, $from)
+	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($email, $from, $subject)
 	{
-		$message->to($email)->from('webmaster@lafayettehelps.com')->replyTo($from)->subject('[lafayettehelps.com] a user has contacted you');
+		$message->to($email)->from('webmaster@lafayettehelps.com', 'lafayettehelps.com')->replyTo($from[0], $from[1])->subject($subject);
 	});
 	msg('Message Sent Successfully');
-	return Redirect::to(URL::previous());
+	switch($object_type)
+	{
+		case 'user':
+			return Redirect::route('userprofile', array('id' => $object->id));
+		case 'organization':
+			return Redirect::route('orgprofile', array('id' => $object->id));
+	}
+	return Redirect::route('home');
 }));
 
 
@@ -113,8 +156,8 @@ Route::post('recommendation/{id}/edit', array('before'=>'csrf', 'as'=>'recommend
 Route::get('recommendation/{id}/delete', array('as'=>'recommendationdelete', 'uses'=>'RecommendationController@doDelete'));
 Route::get('recommendations/for/user/{user_id}', array('as'=>'recommendationsforuser', 'uses'=>'RecommendationController@showRecommendationsForUser'));
 Route::get('recommendation/by/user/{user_id}', array('as'=>'recommendationsbyuser', 'uses'=>'RecommendationController@showRecommendationsByUser'));
-Route::get('recommendation/for/user/{user_id}/add', array('as'=>'recommendationadd', 'uses'=>'RecommendationController@doAdd'));
-Route::post('recommendation/for/user/{user_id}/add', array('before'=>'csrf', 'as'=>'recommendationadd', 'uses'=>'RecommendationController@doAdd'));
+Route::get('recommendation/for/user/{user_id}/add', array('as'=>'recommendationadd', 'uses'=>'RecommendationController@showForm'));
+Route::post('recommendation/for/user/{user_id}/add', array('before'=>'csrf', 'uses'=>'RecommendationController@doAdd'));
 
 
 
@@ -122,7 +165,7 @@ Route::post('recommendation/for/user/{user_id}/add', array('before'=>'csrf', 'as
 Route::get('organizations', array('as'=>'organizations', 'uses'=>'OrganizationController@getIndex'));
 Route::get('organization/add', array('as'=>'addorganization', 'uses'=>'OrganizationController@add'));
 Route::post('organization/add', array('before' => 'csrf', 'uses' => 'OrganizationController@add'));
-Route::get('organization/{id}', 'OrganizationController@showDetail');
+Route::get('organization/{id}', array('as'=>'orgprofile', 'uses'=>'OrganizationController@showDetail'));
 Route::get('organization/{id}/edit', 'OrganizationController@edit');
 Route::post('organization/{id}/edit', array('before'=>'csrf', 'uses' => 'OrganizationController@edit'));
 Route::get('relationships', array('as'=>'relationships', function()
@@ -155,7 +198,7 @@ Route::get('pleas', array('as' => 'pleas', function()
    return View::make('plea.list', array('pleas' => Plea::paginate(20)));
 }));
 
-Route::get('plea/add', array('as'=>'addplea', 'uses'=>'PleaController@add'));
+Route::get('plea/add', array('as'=>'pleaadd', 'uses'=>'PleaController@add'));
 Route::post('plea/add', array('before' => 'csrf', 'uses' => 'PleaController@add'));
 Route::get('plea/{id}', array('as'=>'pleadetail', 'uses'=>'PleaController@showDetail'));
 Route::get('plea/{id}/edit', array('as'=>'pleaedit', 'uses'=>'PleaController@edit'));
@@ -164,8 +207,11 @@ Route::get('pleas/by/user/{user_id}', array('as' => 'pleasbyuser', 'uses' => 'Pl
 
 
 // PLEDGES ROUTES
+//Route::get('pledge/add', array('as'=>'pledgeadd', 'uses'=>'PledgeController@add'));
+Route::post('pledge/add', array('before' => 'csrf', 'uses' => 'PledgeController@add'));
 Route::get('pledges/by/user/{user_id}', array('as' => 'pledgesbyuser', 'uses' => 'PledgeController@showPledgesByUser'));
 Route::get('pledges/by/plea/{plea_id}', array('as' => 'pledgesbyplea', 'uses' => 'PledgeController@showPledgesByPlea'));
+
 
 
 // OFFER ROUTES

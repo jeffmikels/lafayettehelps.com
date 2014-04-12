@@ -120,10 +120,18 @@ $permissions['Plea']['add']['user'] = True;
 $permissions['Plea']['edit']['user'] = False;
 $permissions['Plea']['edit']['self'] = True;
 $permissions['Plea']['delete']['self'] = False;
+$permissions['Pledge']['add']['user'] = True;
+$permissions['Pledge']['edit']['user'] = False;
+$permissions['Pledge']['edit']['self'] = True;
+$permissions['Pledge']['delete']['self'] = True;
 $permissions['Organization']['add']['user'] = True;
 $permissions['Organization']['edit']['user'] = False;
 $permissions['Organization']['edit']['orgadmin'] = True;
 $permissions['Organization']['delete']['orgadmin'] = False;
+$permissions['Recommendation']['add']['user'] = True;
+$permissions['Recommendation']['edit']['user'] = False;
+$permissions['Recommendation']['edit']['self'] = False;
+$permissions['Recommendation']['delete']['self'] = False;
 
 class myConfig
 {
