@@ -3,17 +3,40 @@ class Plea extends Eloquent
 {
 	protected $table = 'pleas';
 	protected $properties = Array('id','user_id','summary','details','dollars','alternatives','deadline','status','verified_by');
+	protected $softDelete = true;
+
 	protected $validations = Array(
 		'default' => '#^.*$#',
 		'status' => 'refuse',
 		'verified_by' => 'refuse'
 	);
-	
+
 	public function __construct()
 	{
 		$this->user_id = me()->id;
 	}
-	
+
+	public function restore()
+	{
+		$this->pledges()->restore();
+		$this->comments()->restore();
+		return parent::restore();
+	}
+
+	public function delete()
+	{
+		$this->pledges()->delete();
+		$this->comments()->delete();
+// 		if ($this->pledges)
+// 		{
+// 			foreach ($this->pledges as $pledge)
+// 			{
+// 				$pledge->delete();
+// 			}
+// 		}
+		return parent::delete();
+	}
+
 	public function getProperties()
 	{
 		return $this->properties;
@@ -47,12 +70,12 @@ class Plea extends Eloquent
 	{
 		return $this->pledges()->where('dollars','>',0)->orderBy('created_at','ASC')->get();
 	}
-	
+
 	public function alternativePledges()
 	{
 		return $this->pledges()->where('alternatives', '<>', '')->orderBy('created_at', 'ASC')->get();
 	}
-	
+
 	public function totalPledged()
 	{
 		$total = 0;

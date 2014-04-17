@@ -4,7 +4,7 @@ class Recommendation extends Eloquent
 {
 	protected $table = 'recommendations';
 	protected $softDelete = true;
-	
+		
 	public function contributedBy()
 	{
 		return $this->belongsTo('User', 'contributed_by', 'id');

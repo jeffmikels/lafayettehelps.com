@@ -14,12 +14,14 @@
 
 Route::get('/test', function()
 {
-	$user = User::find(1);
+	$plea = Plea::withTrashed()->where('id',5)->first()->restore();
+// 	$plea->restore();
+// 	return Redirect::route('pleas');
 	// $note = new OrganizationNote();
 	// $note->organization_id = 1;
 	// $note->body = 'this is a test note';
 	//$user->notes()->save($note);
-	return Response::json($user->recommendationsReceived);
+	return Response::json($plea);
 	// Header('Content-type: text/plain');
 	// var_dump(User::find(3)->isOrgAdmin($org));
 	// dd();
@@ -57,7 +59,7 @@ Route::get('{object_type}/{id}/contact', array('as'=>'contact', function($object
 			return Redirect::route('home');
 	}
 	return View::make('contact', array('object'=>$object, 'object_type'=>$object_type));
-	
+
 }));
 
 Route::post('{object_type}/{id}/contact', array('as'=>'sendmail', 'before'=>'csrf', function($object_type, $id)
@@ -70,32 +72,34 @@ Route::post('{object_type}/{id}/contact', array('as'=>'sendmail', 'before'=>'csr
 	switch ($object_type)
 	{
 		case 'user':
-			$object = User::find($id);
-			$object->name = $object->getName();
+			$target = User::find($id);
+			$target->name = $target->getName();
 			break;
 		case 'organization':
-			$object = Organization::find($id);
+			$target = Organization::find($id);
 			break;
 		default:
 			err('I couldn\'t figure out what you were trying to do.');
 			return Redirect::route('home');
 	}
-	
-	$email = $object->email;
-	$sender = me()->getPublicName();
-	$from = array(me()->email, $sender);
+	$sender = me();
+	$sender->name = $sender->getPublicName();
+	$from = array($sender->email, $sender->name);
+
+	$to = array($target->email, $target->name);
+
 	$content = Input::get('content','');
-	$subject = sprintf('[%s via lafayettehelps.com]: %s', $sender, Input::get('subject',''));
-	$data = array('content'=>$content, 'user'=>me());
-	if (!$email or !$content)
+	$subject = sprintf('[%s via lafayettehelps.com]: %s', $sender->name, Input::get('subject',''));
+	$data = array('content'=>$content, 'user'=>$sender);
+	if (!$target->email or !$content)
 	{
-		if (!$email) err('I couldn\'t find an email address on file for that ' . $object_type . '.');
+		if (!$target->email) err('I couldn\'t find an email address on file for that ' . $object_type . '.');
 		if (!$content) err('You didn\'t enter anything in the message field.');
 		return Redirect::to(URL::previous());
 	}
-	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($email, $from, $subject)
+	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($to, $from, $subject)
 	{
-		$message->to($email)->from('webmaster@lafayettehelps.com', 'lafayettehelps.com')->replyTo($from[0], $from[1])->subject($subject);
+		$message->to($to[0], $to[1])->from('webmaster@lafayettehelps.com', 'lafayettehelps.com')->replyTo($from[0], $from[1])->subject($subject);
 	});
 	msg('Message Sent Successfully');
 	switch($object_type)
@@ -128,19 +132,20 @@ Route::get('logout', array('as'=>'logout', 'uses'=>'UserController@doLogout'));
 Route::get('users', array('as'=>'users', 'uses'=> 'UserController@getIndex'));
 Route::get('user/add', array('as'=>'adduser', 'uses'=>'UserController@doAdd'));
 Route::post('user/add', array('before' => 'csrf', 'uses' => 'UserController@doAdd'));
-Route::get('user', array('as'=>'profile', function()
+// Route::get('profile', array('as'=>'profile', function() {return Redirect::route('dashboard');}));
+Route::get('user', array('as'=>'dashboard', function()
 {
 	if(Auth::check())
 	{
-		$id = Auth::user()->id;
-		return Redirect::route('userprofile', array('id'=>$id));
+		return View::make('user.dashboard', array('user'=>me()));
 	}
-	else;
+	else
 	{
+		msg('Please Log In');
 		return Redirect::route('login');
 	}
 }));
-Route::get('user/{id}', array('as'=>'userprofile', 'uses'=>'UserController@showDetail'));
+Route::get('user/{id}/profile', array('as'=>'userprofile', 'uses'=>'UserController@showDetail'));
 Route::get('user/{id}/edit', array('as'=>'useredit', 'uses'=>'UserController@doEdit'));
 Route::post('user/{id}/edit', array('before'=>'csrf', 'uses' => 'UserController@doSave'));
 Route::get('user/{id}/confirm/{confirmation_code}', array('as'=>'userconfirm', 'uses' => 'UserController@doConfirm'));
@@ -202,6 +207,7 @@ Route::get('plea/add', array('as'=>'pleaadd', 'uses'=>'PleaController@add'));
 Route::post('plea/add', array('before' => 'csrf', 'uses' => 'PleaController@add'));
 Route::get('plea/{id}', array('as'=>'pleadetail', 'uses'=>'PleaController@showDetail'));
 Route::get('plea/{id}/edit', array('as'=>'pleaedit', 'uses'=>'PleaController@edit'));
+Route::post('plea/{id}/reject', array('as'=>'pleareject', 'uses'=>'PleaController@reject'));
 Route::post('plea/{id}/edit', array('before'=>'csrf', 'uses' => 'PleaController@edit'));
 Route::get('pleas/by/user/{user_id}', array('as' => 'pleasbyuser', 'uses' => 'PleaController@showPleasByUser'));
 

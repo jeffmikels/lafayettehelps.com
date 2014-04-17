@@ -69,6 +69,9 @@
 
 	#old-content {padding: 20px; background:rgba(255,255,255,.9);}
 
+	.note-meta {text-transform:uppercase;font-weight:700;font-size:.8em;}
+	.note-body {font-weight:100; font-size:1.5em;margin:3px;}
+
 	</style>
 
 
@@ -165,8 +168,8 @@
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="themes">My Account<span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="account">
 							<li class="dropdown-header">My Account</li>
-							<li><a tabindex="-1" href="{{route('profile')}}">My Dashboard</a></li>
-							<li><a tabindex="-1" href="{{route('profile')}}">My Profile</a></li>
+							<li><a tabindex="-1" href="{{route('dashboard')}}">My Dashboard</a></li>
+							<li><a tabindex="-1" href="{{route('userprofile', array('id' => me()->id))}}">My Public Profile</a></li>
 							<li><a tabindex="-1" href="{{route('pleasbyuser', array('user_id' => me()->id))}}">My Requests</a></li>
 							<li><a tabindex="-1" href="{{route('pledgesbyuser', array('user_id' => me()->id))}}">My Pledges</a></li>
 							<li class="divider"></li>

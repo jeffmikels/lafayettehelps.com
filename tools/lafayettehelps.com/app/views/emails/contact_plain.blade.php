@@ -1,12 +1,13 @@
+<?php $plaintext = strip_tags($content);?>
 ====================================================
 | lafayettehelps.com
 ====================================================
 
-{{$user->getPublicName()}} has contacted you.
+{{$user->name}} has contacted you.
 
 Their Message:
 
-{{{$content}}}
+{{{$plaintext}}}
 
 ----------------------------------------------------
-This email was sent to you on behalf of {{$user->email}} by lafayettehelps.com. If you think this user is abusing this privilege, please report them here: {{route('report', array('id'=>$user->id, 'by'=>me()->id))}}.
+This email was sent to you on behalf of {{$user->name}} ( {{$user->email}} ) by lafayettehelps.com. If you think this user is abusing this privilege, please report them by forwarding this email to: webmaster@lafayettehelps.com.

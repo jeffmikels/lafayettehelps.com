@@ -7,9 +7,12 @@ class RecommendationController extends BaseController
 
 	public function showForm($user_id)
 	{
-		if (! me()->hasPermissionTo('add','Recommendation'))
+		if (! me()->hasPermissionTo('recommend',User::find($user_id)))
 		{
-			err('You don\'t have permission to leave a recommendation for that user.');
+			if (me()->id == $user_id)
+				err('You don\'t have permission to leave recommendations for yourself.');
+			else
+				err('You don\'t have permission to leave a recommendation for that user.');
 			return Redirect::to(URL::previous());
 		}
 		$user = User::find($user_id);

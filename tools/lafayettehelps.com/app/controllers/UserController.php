@@ -19,7 +19,6 @@ class UserController extends BaseController
 			}
 			return View::make('user.profile', array('user' => $user));
 	}
-
 	public function showContactForm($id)
 	{
 			if (! $user = User::find($id) ) App::abort(404);

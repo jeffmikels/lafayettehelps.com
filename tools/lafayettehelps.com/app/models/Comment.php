@@ -7,6 +7,8 @@ class Comment extends Eloquent
 	protected $table = 'comments';
 	protected $status_options = array('unapproved' => 'Unapproved','approved' => 'Approved');
 	protected $properties = array('commentable_type','commentable_id','user_id','comment','status');
+	protected $softDelete = true;
+
 
 	public function author()
 	{

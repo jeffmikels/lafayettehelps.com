@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/New_York');
 
 /* convenience functions for laravel */
 global $session_message;
@@ -28,6 +29,41 @@ function msg($s)
 	if ($session_message) $session_message .= "<br />";
 	$session_message .= $s;
 	Session::flash('msg', $session_message);
+}
+
+function email($to_object, $from_object = '', $subject = '' , $content = '', $redirect = '')
+{
+	if ($from_object === '') $from_object = me();
+
+	$to_object_type = get_class($to_object);
+	if ($to_object_type == 'User')
+	{
+		$to_object->name = $to_object->getPublicName();
+	}
+	$from_object_type = get_class($from_object);
+	if ($from_object_type == 'User')
+	{
+		$from_object->name = $from_object -> getPublicName();
+	}
+
+	$to = Array($to_object->email, $to_object->name);
+	$from = array($from_object->email, $from_object->name);
+	$subject = sprintf('[%s via lafayettehelps.com]: %s', $from_object->name, $subject);
+	$data = array('content'=>$content, 'user'=>$from_object);
+	if (!$to_object->email or !$content)
+	{
+		if (!$to_object->email) err('I couldn\'t find an email address on file for that ' . $to_object_type . '.');
+		if (!$content) err('You didn\'t enter anything in the message field.');
+		return Redirect::to(URL::previous());
+	}
+
+	Mail::send(array('emails.contact_html','emails.contact_plain'), $data, function($message) use ($to, $from, $subject)
+	{
+		$message->to($to[0], $to[1])->from('webmaster@lafayettehelps.com', 'lafayettehelps.com')->replyTo($from[0], $from[1])->subject($subject);
+	});
+	msg(sprintf('Your email to %s was sent successfully, I think', $to[1]));
+
+	if ($redirect) return Redirect::to($redirect);
 }
 
 function me()
@@ -116,10 +152,17 @@ $permissions['User']['add']['user'] = False;
 $permissions['User']['edit']['user'] = False;
 $permissions['User']['edit']['self'] = True;
 $permissions['User']['delete']['user'] = False;
+$permissions['User']['delete']['self'] = False;
+$permissions['User']['recommend']['user'] = True;
+$permissions['User']['recommend']['self'] = False;
+$permissions['User']['contact']['user'] = True;
+$permissions['User']['contact']['self'] = False;
 $permissions['Plea']['add']['user'] = True;
 $permissions['Plea']['edit']['user'] = False;
 $permissions['Plea']['edit']['self'] = True;
 $permissions['Plea']['delete']['self'] = False;
+$permissions['Plea']['reject']['user'] = False;
+$permissions['Plea']['reject']['orgadmin'] = False;
 $permissions['Pledge']['add']['user'] = True;
 $permissions['Pledge']['edit']['user'] = False;
 $permissions['Pledge']['edit']['self'] = True;
@@ -128,10 +171,6 @@ $permissions['Organization']['add']['user'] = True;
 $permissions['Organization']['edit']['user'] = False;
 $permissions['Organization']['edit']['orgadmin'] = True;
 $permissions['Organization']['delete']['orgadmin'] = False;
-$permissions['Recommendation']['add']['user'] = True;
-$permissions['Recommendation']['edit']['user'] = False;
-$permissions['Recommendation']['edit']['self'] = False;
-$permissions['Recommendation']['delete']['self'] = False;
 
 class myConfig
 {

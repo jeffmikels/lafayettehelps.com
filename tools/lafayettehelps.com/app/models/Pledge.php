@@ -11,6 +11,11 @@ class Pledge extends Eloquent
 		return $this->belongsTo('User','user_id');
 	}
 	
+	public function getOwnerId()
+	{
+		return $this->user_id;
+	}
+	
 	public function plea()
 	{
 		return $this->belongsTo('Plea','plea_id');
@@ -18,7 +23,7 @@ class Pledge extends Eloquent
 	
 	public function validateAndUpdateFromInput()
 	{
-		if (! me()->hasPermissionTo('add','pledge'))
+		if (! me()->hasPermissionTo('add',$this))
 		{
 			err('You don\'t have permission to add pledges');
 			return Redirect::to(URL::previous());

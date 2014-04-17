@@ -325,14 +325,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	{
 		global $permissions;
 		$role = $this->role;
-
 		// if this user is a site administrator, simply return True
 		if ($role == 'administrator') return True;
 
 		// if this user owns this object, then make the role be "self"
 		// if ($this->id && $this->id == $object->getOwnerId()) return True;
-		if ($this->id && $this->id == $object->getOwnerId()) $role == 'self';
-
+		if ($this->id && ($this->id == $object->getOwnerId())) $role = 'self';
 
 		// if this user is an administrator of this organization, change role to 'orgadmin'
 		if (get_class($object) == 'Organization' && me()->isOrgAdmin($object)) $role = 'orgadmin';
