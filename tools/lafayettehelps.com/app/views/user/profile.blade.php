@@ -104,7 +104,7 @@
 				<div class="panel-heading">
 					Organizational Relationships
 				</div>
-				
+
 				<div class="panel-body">
 					<table class="relationships table">
 						<tr>
@@ -117,7 +117,6 @@
 							<td>{{ $organization->pivot->relationship_type }}</td>
 						</tr>
 						@endforeach
-
 					</table>
 				</div>
 			</div>
@@ -126,6 +125,32 @@
 					Organization Notes
 				</div>
 				<div class="panel-body">
+					<div class="notes-form">
+						{{ Form::open(array('action' => 'UserController@addNote', 'class' => 'form', 'role' => 'form')) }}
+						{{ Form::hidden('user_id', $user->id) }}
+
+						<div class="form-group">
+							{{Form::label('org_id', 'Select Organization') }}:
+
+							<?php
+								$org_options = Array();
+								foreach (me()->administers() as $organization)
+								{
+									$org_options[$organization->id] = $organization->name;
+								}
+							?>
+
+							{{ Form::select('org_id', $org_options, NULL, array('class' => 'form-control')) }}
+						</div>
+						<div class="form-group">
+						{{ Form::label('body', "Enter Your Note Here:") }}
+						{{ Form::textarea('body', NULL, array('class'=>'form-control')) }}
+						</div>
+						<div class="form-group">
+						{{ Form::submit('Submit', array('class'=> "btn btn-primary")) }}
+						{{ Form::close() }}
+						</div>
+					</div>
 					<div class="notes">
 						@foreach ($user->notes as $note)
 						<div class="note well">
@@ -140,7 +165,7 @@
 					</div>
 				</div>
 			</div>
-			
+
 			@if (count($user->uncompletedPledges()))
 			<div class="panel panel-primary">
 				<div class="panel-heading">
@@ -173,9 +198,13 @@
 				</div>
 				<div class="panel-body">
 					@foreach ($user->recommendationsReceived as $rec)
-					<div class="well">
-						<p>{{$rec->body}}</p>
-						contributed by {{$rec->contributedBy->permalink()}}
+					<div class="note well">
+						<div class="note meta">
+							Posted by {{$rec->contributedBy->permalink()}} on {{$rec->created_at->toDayDateTimeString()}}
+						</div>
+						<div class="note-body">
+							<p>{{$rec->body}}</p>
+						</div>
 					</div>
 					@endforeach
 				</div>
@@ -189,19 +218,23 @@
 				</div>
 				<div class="panel-body">
 					@foreach ($user->recommendationsGiven as $rec)
-					<div class="well">
-						<p>{{$rec->body}}</p>
-						contributed by {{$rec->contributedFor->permalink()}}
+					<div class="note well">
+						<div class="note meta">
+							Posted for {{$rec->contributedFor->permalink()}} on {{$rec->created_at->toDayDateTimeString()}}
+						</div>
+						<div class="note-body">
+							<p>{{$rec->body}}</p>
+						</div>
 					</div>
 					@endforeach
 				</div>
 			</div>
 			@endif
-			
+
 		</div>
 	</div>
 
-	
+
 	@endif
 
 @stop

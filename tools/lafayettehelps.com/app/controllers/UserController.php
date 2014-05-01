@@ -26,6 +26,33 @@ class UserController extends BaseController
 			return View::make('user.contact', array('user' => $user));
 	}
 
+	public function addNote()
+	{
+		$user_id = Input::get('user_id');
+		$org_id = Input::get('org_id');
+		$body = Input::get('body');
+		$flag = Input::get('flag');
+		$user = User::find($user_id);
+		$org = Organization::find($org_id);
+		if (! $user or ! $org )
+		{
+			err('Something went wrong with your submission');
+			return Redirect::back();
+		}
+		if (! me()->isOrgAdmin($org) )
+		{
+			err('You do not have permission to leave organizational notes for that organization');
+			return Redirect::back();
+		}
+
+		$note = new OrganizationNote();
+		$note->organization_id = $org_id;
+		$note->body = $body;
+		$user->notes()->save($note);
+		msg('Note left successfully');
+		return Redirect::back();
+	}
+
 	public function getIndex()
 	{
 			//$users = User::all();

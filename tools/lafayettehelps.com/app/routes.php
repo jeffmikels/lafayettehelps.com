@@ -14,14 +14,9 @@
 
 Route::get('/test', function()
 {
-	$plea = Plea::withTrashed()->where('id',5)->first()->restore();
-// 	$plea->restore();
-// 	return Redirect::route('pleas');
-	// $note = new OrganizationNote();
-	// $note->organization_id = 1;
-	// $note->body = 'this is a test note';
-	//$user->notes()->save($note);
-	return Response::json($plea);
+	$note = OrganizationNote::find(2);
+
+	return Response::json($note->creator->getName());
 	// Header('Content-type: text/plain');
 	// var_dump(User::find(3)->isOrgAdmin($org));
 	// dd();
@@ -152,6 +147,7 @@ Route::get('user/{id}/confirm/{confirmation_code}', array('as'=>'userconfirm', '
 /* USER ADMINISTRATION */
 Route::get('user/{id}/delete', array('as'=>'userdelete', 'uses' => 'UserController@doDelete'));
 Route::get('user/{id}/ban', array('uses' => 'UserController@ban'));
+Route::post('user/addnote', array('before' => 'csrf', 'uses' => 'UserController@addNote'));
 
 
 // RECOMMENDATIONS
