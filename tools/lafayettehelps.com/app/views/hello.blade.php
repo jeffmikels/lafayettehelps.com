@@ -28,14 +28,14 @@
 	</div>
 </div>
 
-@if($urgent)
+@if(count($urgent))
 <div class="row">
 	<div class="col-lg-12">
 		<h2>Urgent Requests</h2>
 	</div>
 </div>
 <div class="row">
-	<?php foreach($newest as $plea): ?>
+	<?php foreach($urgent as $plea): ?>
 		<div class="col-xs-4">
 			<div class="panel panel-success">
 				<div class="panel-heading">

@@ -45,12 +45,17 @@ class Plea extends Eloquent
 	{
 		return $this->public_properties;
 	}
-
+	
+	public function permalink()
+	{
+		return route('pleadetail', array('id' => $this->id));
+	}
+	
 	public function getOwnerId()
 	{
 		return $this->user_id;
 	}
-
+	
 	public function author()
 	{
 		return $this->belongsTo('User', 'user_id');
@@ -65,7 +70,7 @@ class Plea extends Eloquent
 	{
 		return $this->hasMany('Pledge');
 	}
-
+	
 	public function monetaryPledges()
 	{
 		return $this->pledges()->where('dollars','>',0)->orderBy('created_at','ASC')->get();
@@ -165,5 +170,15 @@ class Plea extends Eloquent
 		return($this->save());
 	}
 
-
+	public function expire()
+	{
+		$this->status = 'expired';
+		$this->save();
+	}
+	
+	public function expiring()
+	{
+		$this->status = 'expiring';
+		$this->save();
+	}
 }

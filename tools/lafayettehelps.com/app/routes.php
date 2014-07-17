@@ -11,7 +11,7 @@
 |
 */
 
-
+// TESTING ROUTE
 Route::get('/test', function()
 {
 	$note = OrganizationNote::find(2);
@@ -21,6 +21,11 @@ Route::get('/test', function()
 	// var_dump(User::find(3)->isOrgAdmin($org));
 	// dd();
 });
+
+// CRON FOR UPDATING THE SITE
+Route::get('cron', array('as'=>'cron', function() {
+	return do_cron();
+}));
 
 // HOME AND ADMIN
 Route::get('/', array('as'=>'home', 'uses' => 'HomeController@showWelcome'));
@@ -38,6 +43,7 @@ Route::get('info', array('as'=>'info', function()
 }));
 
 
+// CONTACT FORMS
 Route::get('{object_type}/{id}/contact', array('as'=>'contact', function($object_type, $id)
 {
 	switch ($object_type)
@@ -56,7 +62,6 @@ Route::get('{object_type}/{id}/contact', array('as'=>'contact', function($object
 	return View::make('contact', array('object'=>$object, 'object_type'=>$object_type));
 
 }));
-
 Route::post('{object_type}/{id}/contact', array('as'=>'sendmail', 'before'=>'csrf', function($object_type, $id)
 {
 	if(! Auth::check())
@@ -108,6 +113,7 @@ Route::post('{object_type}/{id}/contact', array('as'=>'sendmail', 'before'=>'csr
 }));
 
 
+// REPORT ABUSIVE CONTACT AND/OR SPAM
 Route::get('report/{id}/{by}', array('as'=>'report', function($id, $by){
 	msg('user ' . $id . ' reported as abusive by ' . $by);
 	return Redirect::route('home');
@@ -127,7 +133,6 @@ Route::get('logout', array('as'=>'logout', 'uses'=>'UserController@doLogout'));
 Route::get('users', array('as'=>'users', 'uses'=> 'UserController@getIndex'));
 Route::get('user/add', array('as'=>'adduser', 'uses'=>'UserController@doAdd'));
 Route::post('user/add', array('before' => 'csrf', 'uses' => 'UserController@doAdd'));
-// Route::get('profile', array('as'=>'profile', function() {return Redirect::route('dashboard');}));
 Route::get('user', array('as'=>'dashboard', function()
 {
 	if(Auth::check())
@@ -140,7 +145,7 @@ Route::get('user', array('as'=>'dashboard', function()
 		return Redirect::route('login');
 	}
 }));
-Route::get('user/{id}/profile', array('as'=>'userprofile', 'uses'=>'UserController@showDetail'));
+Route::get('user/{id}', array('as'=>'userprofile', 'uses'=>'UserController@showDetail'));
 Route::get('user/{id}/edit', array('as'=>'useredit', 'uses'=>'UserController@doEdit'));
 Route::post('user/{id}/edit', array('before'=>'csrf', 'uses' => 'UserController@doSave'));
 Route::get('user/{id}/confirm/{confirmation_code}', array('as'=>'userconfirm', 'uses' => 'UserController@doConfirm'));

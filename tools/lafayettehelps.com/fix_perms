@@ -1,5 +1,0 @@
-chown -R devel.devel *
-find -type d -exec chmod 770 {} \;
-find -type f -exec chmod 660 {} \;
-chmod +x artisan
-chmod +x fix_perms

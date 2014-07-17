@@ -17,8 +17,8 @@ class HomeController extends BaseController {
 
 	public function showWelcome()
 	{
-		$urgent = Plea::take(4)->orderBy('deadline', 'DESC')->get();
-		$newest = Plea::take(4)->orderBy('created_at', 'DESC')->get();
+        $urgent = Plea::where('status', '=', 'expiring')->get();
+		$newest = Plea::take(4)->orderBy('created_at', 'DESC')->where('status','=','active')->get();
 		return View::make('hello', array('urgent' => $urgent, 'newest' => $newest));
 	}
 

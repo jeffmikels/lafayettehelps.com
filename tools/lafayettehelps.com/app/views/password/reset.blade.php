@@ -18,7 +18,7 @@
 			{{ Form::password('password', $attributes = array('class'=>'form-control')) }}
 		</div>
 
-		<div class="password_confirm form-group">
+		<div class="password_confirmation form-group">
 			{{ Form::label('password_confirmation', 'Password Again') }}
 			{{ Form::password('password_confirmation', $attributes = array('class'=>'form-control')) }}
 		</div>

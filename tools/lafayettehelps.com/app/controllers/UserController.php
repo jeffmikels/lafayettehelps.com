@@ -104,7 +104,7 @@ class UserController extends BaseController
 	public function sendConfirmationEmail($user)
 	{
 		$confirmation_code = hash('sha256',$user->email);
-		$confirmation_link = URL::route('userconfirm', array('id'=>$user->id, 'confirmation'=>$confirmation_code));
+		$confirmation_link = URL::route('userconfirm', array('id'=>$user->id, 'confirmation_code'=>$confirmation_code));
 		$email = "
 Thank you for registering a user account at lafayettehelps.com. In order for your account to be activated, you need to click on this confirmation code.
 
@@ -259,7 +259,7 @@ $confirmation_link";
 			err('You do not have permission to edit this user!');
 			return Redirect::to('user/'. $user->id . '/edit');
 		}
-		elseif (Input::has('password') && (Input::get('password') != Input::get('password_confirm','-1')))
+		elseif (Input::has('password') && (Input::get('password') != Input::get('password_confirmation','-1')))
 		{
 			err('Your passwords didn\'t match!');
 			return Redirect::to('user/'. $user->id . '/edit')->withInput(Input::except('password'));

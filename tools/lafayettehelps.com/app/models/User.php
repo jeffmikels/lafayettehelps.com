@@ -203,12 +203,12 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 			$failed['password'] = "You must have a password when you are registering a new user";
 		}
 
-		// if there is something in the password field, the password_confirm field must equal it.
+		// if there is something in the password field, the password_confirmation field must equal it.
 		if (isset($arr['password']) and $arr['password'])
 		{
-			if (! isset($arr['password_confirm']) and ! $arr['password_confirm'] === $arr['password_confirm'])
+			if (! isset($arr['password_confirmation']) and ! $arr['password_confirmation'] === $arr['password_confirmation'])
 			{
-				$failed['password_confirm'] = 'Password fields did not match';
+				$failed['password_confirmation'] = 'Password fields did not match';
 			}
 		}
 
@@ -219,7 +219,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 			return False;
 		}
 
-		unset($arr['password_confirm']);
+		unset($arr['password_confirmation']);
 
 
 		// print "preparing to save new user";
@@ -368,6 +368,29 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		}
 		return False;
 	}
-
+	
+	public function notify($notification)
+	{
+		/* NOTIFICATION IS AN ARRAY
+			'object' => 'relevant object the notification is about',
+			'type' => 'object type',
+			'reason' => 'the reason for this notification'
+		*/
+		//set up email notification
+		$to = $this;
+		$from = site();
+		
+		if ($notification['type'] == 'plea') $noun = "Request";
+		if ($notification['type'] == 'pledge') $noun = "Pledge";
+		if ($notification['reason'] == 'expired') $verb = "has expired";
+		if ($notification['reason'] == 'expiring') $verb = "is expiring";
+		
+		$subject = "[lafayettehelps.com] Your ${noun} ${verb}.";
+		
+		Mail::send(array('emails.notification_html','emails.notification_plain'), array('notification' => $notification, 'noun' => $noun, 'verb' => $verb, 'subject'=>$subject), function($message) use ($to, $from, $subject)
+		{
+			$message->to($to->email, $to->getPublicName())->from($from->email, $from->name)->subject($subject);
+		});
+	}
 }
 

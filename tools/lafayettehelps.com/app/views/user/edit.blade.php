@@ -26,9 +26,9 @@
 			{{ Form::password('password', array('class' => 'form-control'))}}
 			</div>
 
-			<div class="password_confirm form-group">
-			{{ Form::label('password_confirm', 'Password Again') }}
-			{{ Form::password('password_confirm', array('class' => 'form-control'))}}
+			<div class="password_confirmation form-group">
+			{{ Form::label('password_confirmation', 'Password Again') }}
+			{{ Form::password('password_confirmation', array('class' => 'form-control'))}}
 			</div>
 		</div>
 		<h2>Contact Details</h2>

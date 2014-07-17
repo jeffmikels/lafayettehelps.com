@@ -31,6 +31,75 @@ function msg($s)
 	Session::flash('msg', $session_message);
 }
 
+
+function do_cron()
+{
+	// jobs to run during cron
+	/*
+		1. check the deadlines of all active pleas
+			- if the deadline is past, and status is still active, deactivate and process pledges
+			- if the deadline is soon, send warning notification
+		2. other jobs???
+	*/
+	$today = date('Y-m-d', time() - (24*60*60));
+	$tomorrow = date('Y-m-d', time() + 24*60*60);
+	$expired = Plea::with('pledges.author', 'author')->where('deadline', '>=', $tomorrow)->where('status', '<>', 'expired')->get();
+	$expiring = Plea::with('pledges.author', 'author')->where('deadline', '=', $today)->where('status', '<>', 'expiring')->get();
+	
+	// process expired pleas
+ 	foreach ($expired as $plea)
+	{
+		// label as expired
+		$plea->expire();
+				
+		// notify all interested parties
+		foreach ($plea->pledges as $pledge)
+		{
+			$notification = array(
+				'object' => $pledge,
+				'type' => 'pledge',
+				'reason' => 'expired'
+			);
+			$pledge->author->notify($notification);
+		}
+		
+		// notify the original author
+		$notification = array(
+			'object' => $plea,
+			'type' => 'plea',
+			'reason' => 'expired'
+		);
+		$plea->author->notify($notification);		
+		
+	}
+	
+	// process expiring pleas
+ 	foreach ($expiring as $plea)
+	{
+		// label as expiring
+		$plea->expiring();
+		
+		// notify all interested parties
+		foreach ($plea->pledges as $pledge)
+		{
+			$notification = array(
+				'object' => $pledge,
+				'type' => 'pledge',
+				'reason' => 'expiring'
+			);
+			$pledge->author->notify($notification);
+		}
+		// notify the original author
+		$notification = array(
+			'object' => $plea,
+			'type' => 'plea',
+			'reason' => 'expiring'
+		);
+		$plea->author->notify($notification);
+	}
+	return Response::json(TRUE);
+}
+
 function email($to_object, $from_object = '', $subject = '' , $content = '', $redirect = '')
 {
 	if ($from_object === '') $from_object = me();
@@ -64,6 +133,15 @@ function email($to_object, $from_object = '', $subject = '' , $content = '', $re
 	msg(sprintf('Your email to %s was sent successfully, I think', $to[1]));
 
 	if ($redirect) return Redirect::to($redirect);
+}
+
+function site()
+{
+	$retval = new User();
+	$retval->email = 'webmaster@lafayettecc.org';
+	$retval->first_name = 'Pastor Jeff';
+	$retval->last_name = 'Mikels';
+	return $retval;
 }
 
 function me()
