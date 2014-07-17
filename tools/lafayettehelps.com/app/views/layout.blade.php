@@ -10,21 +10,21 @@
 	<!-- BOOTSTRAP RESOURCES -->
 	<!-- Latest compiled and minified CSS -->
 	<!--<link rel="stylesheet" href="/bootstrap-3.0.3/css/bootstrap.min.css">-->
-	<link rel="stylesheet" href="/css/bootstrap_simplex.css">
+	<link rel="stylesheet" href="css/bootstrap_simplex.css">
 
 	<!-- BOOTSTRAP DATEPICKER -->
-	<link href="/css/datepicker.css" rel="stylesheet">
+	<link href="css/datepicker.css" rel="stylesheet">
 
 	<!-- WYSIWYG CSS -->
-	<link rel="stylesheet" type="text/css" href="/bootstrap-wysihtml5/bootstrap-wysihtml5.css"></link>
+	<link rel="stylesheet" type="text/css" href="bootstrap-wysihtml5/bootstrap-wysihtml5.css"></link>
 
 
 	<!-- TABLESORTER -->
-	<link type="text/css" rel="stylesheet" href="/tablesorter/css/theme.default.css" media="all" />
+	<link type="text/css" rel="stylesheet" href="tablesorter/css/theme.default.css" media="all" />
 
 
 	<!-- MY PERSONAL CSS -->
-	<link type="text/css" rel="stylesheet" href="/css/style.css" media="all" />
+	<link type="text/css" rel="stylesheet" href="css/style.css" media="all" />
 
 
 	<!-- CUSTOM CSS -->
@@ -103,7 +103,7 @@
 	<div class="navbar navbar-default navbar-fixed-top">
 		<div class="container">
 			<div class="navbar-header">
-				<a href="/" class="navbar-brand">lafayettehelps.com</a>
+				<a href="{{route('home')}}" class="navbar-brand">lafayettehelps.com</a>
 				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
