@@ -14,9 +14,9 @@ Here are the key things to remember:
 
 	    try_files $uri $uri/ /index.php$is_args$args;
  
-* In the directory `tools/lafayettehelps.com/` run `composer install` to install dependencies. (Of course, you need `composer` installed for this. Visit [getcomposer.org](https://getcomposer.org) to get it.)
+* All dependencies are included in the repository, so you don't need to run the `composer install` command in the Laravel root.
 * In the directory `tools/lafayettehelps.com/app/config` copy `database.php.sample` to `database.php` and edit the file to fit your database settings.
-* In the directory `tools/lafayettehelps.com/` execute the command `php artisan migrate` to install the database tables.
+* In the directory `tools/lafayettehelps.com/` execute the commands `php artisan optimize` to optimize the class loaders and then `php artisan migrate` to install the database tables.
 * Visit the url: `http://your-installation/register` to create your first user. This user will be your administrative user, but you can change it's role later on.
 
 Once you are logged in, you should be able to use your administrative privileges to move around the site and do what needs to be done!
