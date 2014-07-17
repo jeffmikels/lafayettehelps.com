@@ -88,12 +88,23 @@ class UserController extends BaseController
 			$user = new User();
 			if ($user->validateAndUpdateFromArray(Input::except('_token','id')) )
 			{
+				// if the user id is 1, then we have created the first user in the database
+				// and we should set that user to be an administrator
+				if ($user->id == 1)
+				{
+					$user->role = "administrator";
+					$user->save();
+				}
+				
 				// everything looks good, so now, we finish things up.
 				// send confirmation email
 				$this->sendConfirmationEmail($user);
 
 				// say Thank You.
-				msg('A confirmation email has been sent to you. You need to click on the link in that email before you will be allowed to log into this site.');
+				$message_text = 'A confirmation email has been sent to you. You need to click on the link in that email before you will be allowed to log into this site.';
+				
+				if ($user->id == 1) $message_text = 'YOU HAVE CREATED THE FIRST USER. This user will be your administrative user unless you change it in the future.<br />' . $message_text;
+				msg($message_text);
 				return Redirect::route('login');
 			}
 		}
