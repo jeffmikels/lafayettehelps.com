@@ -10,21 +10,21 @@
 	<!-- BOOTSTRAP RESOURCES -->
 	<!-- Latest compiled and minified CSS -->
 	<!--<link rel="stylesheet" href="/bootstrap-3.0.3/css/bootstrap.min.css">-->
-	<link rel="stylesheet" href="css/bootstrap_simplex.css">
+	<link rel="stylesheet" href="{{route('home')}}css/bootstrap_simplex.css">
 
 	<!-- BOOTSTRAP DATEPICKER -->
-	<link href="css/datepicker.css" rel="stylesheet">
+	<link href="{{route('home')}}css/datepicker.css" rel="stylesheet">
 
 	<!-- WYSIWYG CSS -->
-	<link rel="stylesheet" type="text/css" href="bootstrap-wysihtml5/bootstrap-wysihtml5.css"></link>
+	<link rel="stylesheet" type="text/css" href="{{route('home')}}bootstrap-wysihtml5/bootstrap-wysihtml5.css"></link>
 
 
 	<!-- TABLESORTER -->
-	<link type="text/css" rel="stylesheet" href="tablesorter/css/theme.default.css" media="all" />
+	<link type="text/css" rel="stylesheet" href="{{route('home')}}tablesorter/css/theme.default.css" media="all" />
 
 
 	<!-- MY PERSONAL CSS -->
-	<link type="text/css" rel="stylesheet" href="css/style.css" media="all" />
+	<link type="text/css" rel="stylesheet" href="{{route('home')}}css/style.css" media="all" />
 
 
 	<!-- CUSTOM CSS -->
@@ -84,17 +84,17 @@
 
 	<!-- Latest compiled and minified Bootstrap JavaScript -->
 	<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
-	<script src="/js/bootstrap.min.js"></script>
+	<script src="{{route('home')}}js/bootstrap.min.js"></script>
 
 	<!-- BOOTSTRAP DATEPICKER -->
-	<script src="/js/bootstrap-datepicker.js"></script>
+	<script src="{{route('home')}}js/bootstrap-datepicker.js"></script>
 
 	<!-- WYSIHTML5 SCRIPT -->
-	<script type="text/javascript" src="/bootstrap-wysihtml5/wysihtml5-0.3.0.js"></script>
-	<script type="text/javascript" src="/bootstrap-wysihtml5/bootstrap-wysihtml5.js"></script>
+	<script type="text/javascript" src="{{route('home')}}bootstrap-wysihtml5/wysihtml5-0.3.0.js"></script>
+	<script type="text/javascript" src="{{route('home')}}bootstrap-wysihtml5/bootstrap-wysihtml5.js"></script>
 
 	<!-- TABLESORTER -->
-	<script type="text/javascript" src="/tablesorter/js/jquery.tablesorter.js"></script>
+	<script type="text/javascript" src="{{route('home')}}tablesorter/js/jquery.tablesorter.js"></script>
 
 
 </head>
