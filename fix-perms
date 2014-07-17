@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# ensure laravel has the right permissions
+find . -type d -exec chmod 750 "{}" \;
+find . -type f -exec chmod 640 "{}" \;
+
+PUBROOT=tools/lafayettehelps.com/public
+find $PUBROOT -type d -exec chmod 755 "{}" \;
+find $PUBROOT -type f -exec chmod 644 "{}" \;
+chmod 755 tools
+chmod 755 tools/lafayettehelps.com
+chmod +x fix-perms
+chmod +x tools/lafayettehelps.com/artisan
