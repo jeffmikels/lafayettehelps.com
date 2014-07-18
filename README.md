@@ -28,6 +28,17 @@ Once you are logged in, you should be able to use your administrative privileges
 
 ####TODO Items
 
+Priorities:
+
+* We need a great homepage to help people understand what's going on (graphic design improvements are a must for usability) Sites for inspiration here: kickstarter.com / gofundme.com / begslist.org
+* We need an expiration system so that requests get disabled at their deadline. (This is mostly implemented, but it isn't finished)
+* We need a notification system so that users get appropriate notifications of new, updated, expiring requests. I want users to select their own favorite notification methods between SMS & Email. I'm using GoogleVoice as an SMS gateway on our server already.
+* We need a mechanism to actually handle the donations. Currently, the church is willing to use its PayPal account to handle the donations, but we need the site to interface with the PayPal API to do pre-authorization of payment when the pledge is made and final processing of payment when the deadline is reached but only if the total pledges equal or exceed the stated need. (Like kickstarter, I want to guarantee our donors that they will only be charged if their donation actually makes a difference!)
+* We need a comment and recommendation moderation system of some kind... Either we allow admins to moderate comments and recommendations, or we could do something more "social" by allowing people with certain levels of reputation to automatically be considered moderators.
+* I have also toyed with the idea of letting respected users "vote up" or "vote down" certain requests or to somehow sort the request lists by user reputation, popularity, or by other social factors.
+
+
+
 General:
 
 * CONTACT FORMS -- implement "abuse report" (reduce reputation & add note to user)
